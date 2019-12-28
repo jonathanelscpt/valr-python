@@ -40,5 +40,5 @@ after_failure:
   - more .tox/*/log/* | cat
 notifications:
   email:
-    on_success: never
+    on_success: always
     on_failure: always
