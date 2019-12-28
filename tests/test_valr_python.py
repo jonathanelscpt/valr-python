@@ -1,9 +1,10 @@
 import pytest
 import requests_mock
 
+from valr_python.base_client import _sign_request  # noqa
 from valr_python.client import Client
-from valr_python.error import APIError, RequiresAuthentication
-from valr_python.base_client import _sign_request # noqa
+from valr_python.error import APIError
+from valr_python.error import RequiresAuthentication
 
 
 @pytest.fixture
@@ -73,4 +74,4 @@ def test_request_signature_basic():
     path = '/v1/account/balances'
     body = ''
     signature = _sign_request(api_secret=api_secret, timestamp=timestamp, method=method, path=path, body=body)
-    assert signature == 'caf54b16a73d87a3dd7ac89edbfda5191db7847843a6c0839a2a482716c3be6e5af2b3fc5f442957a62747f4651c3b07931f9fad3866529c45e356e50e9c2cba'
+    assert signature == 'caf54b16a73d87a3dd7ac89edbfda5191db7847843a6c0839a2a482716c3be6e5af2b3fc5f442957a62747f4651c3b07931f9fad3866529c45e356e50e9c2cba'  # noqa

@@ -1,11 +1,13 @@
-import json
-import time
 import hashlib
 import hmac
-import requests
+import json
+import time
 from json.decoder import JSONDecodeError
 
-from .error import APIError, RequiresAuthentication
+import requests
+
+from .error import APIError
+from .error import RequiresAuthentication
 
 DEFAULT_BASE_URL = 'https://api.valr.com'
 DEFAULT_TIMEOUT = 10
