@@ -2,4 +2,4 @@
 Authors
 =======
 
-* Jonathan Els - None
+* Jonathan Els - jonathanelscpt@gmail.com
