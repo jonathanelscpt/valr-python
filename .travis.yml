@@ -11,9 +11,6 @@ matrix:
       env:
         - TOXENV=check
     - env:
-        - TOXENV=py35
-      python: '3.5'
-    - env:
         - TOXENV=py36
       python: '3.6'
     - env:
@@ -22,9 +19,6 @@ matrix:
     - env:
         - TOXENV=py38
       python: '3.8'
-    - env:
-        - TOXENV=pypy
-      python: 'pypy'
     - env:
         - TOXENV=pypy3
         - TOXPYTHON=pypy3
