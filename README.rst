@@ -49,8 +49,14 @@ To use the project:
 
 .. code-block:: python
 
-    import valr_python
-    valr_python.longest()
+    from valr_python import Client
+
+    c = Client(api_key='api_key', api_secret='api_secret')
+    try:
+        res = c.get_market_summary()
+        print(res)
+    except Exception as e:
+        print(e)
 
 
 Development
