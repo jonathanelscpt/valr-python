@@ -49,7 +49,7 @@ To use the project:
 
 .. code-block:: python
 
-    from valr_python import Client
+    from valr_python.client import Client
 
     c = Client(api_key='api_key', api_secret='api_secret')
     try:
