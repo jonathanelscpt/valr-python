@@ -5,16 +5,14 @@ class Client(BaseClient):
     """
     Python SDK for the VALR API.
 
-    Example usage: #TODO - change to VALR usage
-
-        from valr_python.client import Client
+        from valr_python import Client
 
         c = Client(api_key='api_key', api_secret='api_secret')
         try:
-            res = c.get_ticker(pair='BTCZAR')
-            print res
+            res = c.get_market_summary()
+            print(res)
         except Exception as e:
-            print e
+            print(e)
     """
 
     # Public APIs
