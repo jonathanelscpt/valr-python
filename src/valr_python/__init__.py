@@ -1,3 +1,5 @@
 __version__ = '0.1.2'
 
-__all__ = ['client', 'error']
+from .client import Client
+
+__all__ = ['Client']

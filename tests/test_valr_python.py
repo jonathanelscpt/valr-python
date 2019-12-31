@@ -1,8 +1,8 @@
 import pytest
 import requests_mock
 
+from valr_python import Client
 from valr_python.base_client import _sign_request  # noqa
-from valr_python.client import Client
 from valr_python.error import APIError
 from valr_python.error import RequiresAuthentication
 
