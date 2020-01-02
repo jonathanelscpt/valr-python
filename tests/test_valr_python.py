@@ -8,61 +8,67 @@ from valr_python.error import RequiresAuthentication
 
 
 @pytest.fixture
-def client():
+def mock_client():
     c = Client()
     c.base_url = 'mock://test/'
     return c
 
 
-def test_client(client):
-    client.api_secret = 'api_secret'
-    client.api_key = 'api_key'
-    client.base_url = 'base_url'
-    client.timeout = 10
+def test_client(mock_client):
+    mock_client.api_secret = 'api_secret'
+    mock_client.api_key = 'api_key'
+    mock_client.base_url = 'base_url'
+    mock_client.timeout = 10
 
-    assert client.api_key == 'api_key'
-    assert client.api_secret == 'api_secret'
-    assert client.base_url == 'base_url'
-    assert client.timeout == 10
+    assert mock_client.api_key == 'api_key'
+    assert mock_client.api_secret == 'api_secret'
+    assert mock_client.base_url == 'base_url'
+    assert mock_client.timeout == 10
 
 
-def test_client_authentication(client):
+def test_client_do_authentication(mock_client):
 
     adapter = requests_mock.Adapter()
-    client._session.mount('mock', adapter)
+    mock_client._session.mount('mock', adapter)
     adapter.register_uri('GET', 'mock://test/', text='{}', status_code=200)
 
     with pytest.raises(RequiresAuthentication):
-        client._do('GET', 'mock://test/', is_authenticated=True)
+        mock_client._do('GET', 'mock://test/', is_authenticated=True)
 
     # no exceptions, because no error present
-    client._do('GET', '/')
+    mock_client._do('GET', '/')
 
-    client.api_secret = 'api_secret'
-    client.api_key = 'api_key'
-    client._do('GET', '/', is_authenticated=True)
+    mock_client.api_secret = 'api_secret'
+    mock_client.api_key = 'api_key'
+    mock_client._do('GET', '/', is_authenticated=True)
 
 
-def test_client_do_basic(client):
+def test_client_authentication_error(mock_client):
+
+    with pytest.raises(RequiresAuthentication):
+        mock_client.get_balances()
+
+
+def test_client_do_basic(mock_client):
     adapter = requests_mock.Adapter()
-    client._session.mount('mock', adapter)
+    mock_client._session.mount('mock', adapter)
 
     adapter.register_uri('GET', 'mock://test/', text='ok')
     with pytest.raises(Exception):
-        res = client._do('GET', '/')
+        res = mock_client._do('GET', '/')
 
     adapter.register_uri('GET', 'mock://test/', text='{"key":"value"}')
-    res = client._do('GET', '/')
+    res = mock_client._do('GET', '/')
     assert res['key'] == 'value'
 
     adapter.register_uri('GET', 'mock://test/', text='{}', status_code=400)
-    res = client._do('GET', '/')  # no exception, because no error present
+    res = mock_client._do('GET', '/')  # no exception, because no error present
 
     adapter.register_uri('GET', 'mock://test/',
                          text='{"error_code":"code","error":"message"}',
                          status_code=400)
     with pytest.raises(APIError) as e:
-        res = client._do('GET', '/')
+        res = mock_client._do('GET', '/')
     assert e.value.code == 'code'
     assert e.value.message == 'message'
 
