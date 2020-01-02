@@ -28,6 +28,7 @@ def _sign_request(api_secret, timestamp, method, path, body=""):
     :type body: str
     :rtype: str
     """
+    body = body if body else ""
     payload = f"{timestamp}{method.upper()}{path}{body}"
     message = bytearray(payload, 'utf-8')
     signature = hmac.new(bytearray(api_secret, 'utf-8'), message, digestmod=hashlib.sha512).hexdigest()
