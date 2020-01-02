@@ -5,17 +5,17 @@ class Client(BaseClient):
     """
     Python SDK for the VALR API.
 
-        from valr_python import Client
-
-        c = Client(api_key='api_key', api_secret='api_secret')
-        try:
-            res = c.get_market_summary()
-            print(res)
-        except Exception as e:
-            print(e)
+        >>> from valr_python import Client
+        >>> c = Client(api_key='api_key', api_secret='api_secret')
+        >>> try:
+        ...     res = c.get_market_summary()
+        ...     print(res)
+        ...except Exception as e:
+        ... print(e)
+        ...
     """
 
-    # Public APIs
+    # Public APIs   
 
     def get_order_book_public(self, currency_pair):
         """Makes a call to GET https://api.valr.com/v1/public/:currencyPair/orderbook
