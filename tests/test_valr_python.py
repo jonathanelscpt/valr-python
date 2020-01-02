@@ -74,10 +74,10 @@ def test_client_do_basic(mock_client):
 
 
 def test_request_signature_basic():
-    api_secret = 'b9fb68df5485639d03c3171cf6e49b89e52fd78d5c313819b9c592b59c689f33'
+    api_secret = 'superdupersecret'
     timestamp = 1577572690093
     method = 'GET'
     path = '/v1/account/balances'
     body = ''
     signature = _sign_request(api_secret=api_secret, timestamp=timestamp, method=method, path=path, body=body)
-    assert signature == 'caf54b16a73d87a3dd7ac89edbfda5191db7847843a6c0839a2a482716c3be6e5af2b3fc5f442957a62747f4651c3b07931f9fad3866529c45e356e50e9c2cba'  # noqa
+    assert signature == '647d276537b952fe37f349422a4a60a76ecc2e3fad509a523b03dccd1a940525f8ff06314ad1adc5625000223c514637cd9682ee89ffc285b7493e7c64e746aa'  # noqa
