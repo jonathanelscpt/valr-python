@@ -104,7 +104,7 @@ class BaseClient:
         :type is_authenticated: bool
         :type method: custom_headers: object
         """
-        params = json.loads(json.dumps(data)) if json.loads(json.dumps(data)) else ""
+        params = json.loads(json.dumps(data))
         headers = {}
         url = self._base_url + '/' + path.lstrip('/')
         if is_authenticated:
