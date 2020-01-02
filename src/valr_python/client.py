@@ -10,12 +10,12 @@ class Client(BaseClient):
         >>> try:
         ...     res = c.get_market_summary()
         ...     print(res)
-        ...except Exception as e:
+        ... except Exception as e:
         ... print(e)
         ...
     """
 
-    # Public APIs   
+    # Public APIs
 
     def get_order_book_public(self, currency_pair):
         """Makes a call to GET https://api.valr.com/v1/public/:currencyPair/orderbook
@@ -77,6 +77,7 @@ class Client(BaseClient):
         Get the market summary for all supported currency pairs.
         """
         return self._do('GET', '/v1/public/marketsummary')
+    # todo - flatten
 
     def get_market_summary_for_currency_pair(self, currency_pair):
         """Makes a call to GET https://api.valr.com/v1/public/:currencyPair/marketsummary
@@ -88,6 +89,7 @@ class Client(BaseClient):
         :type currency_pair: str
         """
         return self._do('GET', f'/v1/public/{currency_pair}/marketsummary')
+    # todo - flatten
 
     def get_server_time(self):
         """Makes a call to GET https://api.valr.com/v1/public/time
@@ -141,7 +143,6 @@ class Client(BaseClient):
         :param currency_code: Currently, the allowed values here are BTC and ETH.
         :type currency_code: str
         """
-        # TODO - inconsistent address scheme documented - receive vs deposit
         return self._do('GET', f'/v1/wallet/crypto/{currency_code}/deposit/address', is_authenticated=True)
 
     def get_withdrawal_info(self, currency_code):
