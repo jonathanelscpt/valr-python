@@ -41,6 +41,13 @@ You can also install the in-development version with::
     pip install https://github.com/jonathanelscpt/valr-python/archive/master.zip
 
 
+
+Authentication
+==============
+
+Authenticating to the VALR API requires a valid API Key from the `VALR exchange <https://www.valr.com/>`_.
+
+
 Documentation
 =============
 
