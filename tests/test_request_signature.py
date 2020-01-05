@@ -1,6 +1,6 @@
 import json
 
-from valr_python.base_client import sign_request  # noqa
+from valr_python.base_client import sign_request
 
 
 def test_request_signature_basic():
