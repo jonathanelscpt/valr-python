@@ -36,3 +36,4 @@ Changelog
 * Added typing support
 * Re-worked class design internals to support later async expansion
 * Fixed bugs with str 'None' insertion with f-strings
+* Expanded unit tests to cover all api endpoints for synchronous client
