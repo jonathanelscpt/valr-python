@@ -3,30 +3,28 @@ import hmac
 import json
 import time
 from json.decoder import JSONDecodeError
+from typing import Dict
+from typing import List
+from typing import Union
 
 import requests
 
-from .error import APIError
-from .error import RequiresAuthentication
+from .exceptions import APIError
+from .exceptions import APIException
+from .exceptions import RequiresAuthentication
 
-DEFAULT_BASE_URL = 'https://api.valr.com'
 DEFAULT_TIMEOUT = 10
 
 
-def _sign_request(api_secret, timestamp, method, path, body=""):
+def _sign_request(api_secret: str, timestamp: int, method: str, path: str, body: str = "") -> str:
     """Signs the request payload using the api key secret
 
     :param api_secret: the api key secret
-    :type api_secret: str
     :param timestamp: the unix timestamp of this request e.g. int(time.time()*1000)
-    :type timestamp: int
     :param method: Http method - GET, POST, PUT or DELETE
-    :type method: str
     :param path: path excluding host name, e.g. '/api/v1/withdraw'
-    :type path: str
     :param body: http request body as a string, optional
-    :type body: str
-    :rtype: str
+    :return signature hash
     """
     body = body if body else ""
     payload = f"{timestamp}{method.upper()}{path}{body}"
@@ -35,12 +33,10 @@ def _sign_request(api_secret, timestamp, method, path, body=""):
     return signature
 
 
-def _check_timeout(timeout):
+def _check_timeout(timeout: int) -> int:
     """Check if request is non-zero and set to 10 if zero.
 
     :param timeout: HTTP _timeout
-    :type timeout: int
-    :rtype: int
     """
     if timeout == 0:
         return DEFAULT_TIMEOUT
@@ -48,61 +44,64 @@ def _check_timeout(timeout):
 
 
 class BaseClient:
-    def __init__(self, base_url=None, api_key='', api_secret='', timeout=DEFAULT_TIMEOUT):
+    DEFAULT_BASE_URL = 'https://api.valr.com'
+
+    def __init__(self, api_key: str = None, api_secret: str = None, timeout: int = DEFAULT_TIMEOUT,
+                 base_url: str = None) -> None:
         """
-        :type base_url: str
-        :type timeout: int
-        :type api_key: str
-        :type api_secret: str
+        :param base_url: base api url
+        :param api_key: api key
+        :param api_secret: api secret
+        :param timeout: http timeout
         """
         self._api_key = api_key
         self._api_secret = api_secret
-        self._base_url = base_url.rstrip('/') if base_url else DEFAULT_BASE_URL
+        self._base_url = base_url.rstrip('/') if base_url else self.DEFAULT_BASE_URL
         self._timeout = _check_timeout(timeout)
         self._session = requests.Session()
 
     @property
-    def api_key(self):
+    def api_key(self) -> str:
         return self._api_key
 
     @api_key.setter
-    def api_key(self, value):
+    def api_key(self, value: str) -> None:
         self._api_key = value
 
     @property
-    def api_secret(self):
+    def api_secret(self) -> str:
         return self._api_secret
 
     @api_secret.setter
-    def api_secret(self, value):
+    def api_secret(self, value: str) -> None:
         self._api_secret = value
 
     @property
-    def timeout(self):
+    def timeout(self) -> int:
         return self._timeout
 
     @timeout.setter
-    def timeout(self, value):
+    def timeout(self, value: int) -> None:
         self._timeout = _check_timeout(value)
 
     @property
-    def base_url(self):
+    def base_url(self) -> str:
         return self._base_url
 
     @base_url.setter
-    def base_url(self, value):
-        self._base_url = value.rstrip('/') if value else DEFAULT_BASE_URL
+    def base_url(self, value: str) -> None:
+        self._base_url = value.rstrip('/') if value else self.DEFAULT_BASE_URL
 
-    def _do(self, method, path, is_authenticated=False, data=None):
+    def _do(self, method: str, path: str, is_authenticated: bool = False, data: Dict = None) -> Union[List, Dict, None]:
         """Performs an API request and returns the response.
 
-        TODO: Handle 429s
+        TODO: Handle 429s retry with exponential back-off
 
-        :type method: str
-        :type path: str
-        :type data: object
-        :type is_authenticated: bool
-        :type method: custom_headers: object
+        :param method: HTTP method (e.g. GET, POST, DELETE, etc.
+        :param path: REST API endpoint path
+        :param is_authenticated: True if api call requires authentication and signature hashing
+        :param data: request data
+        :return: HTTP REST API response from VALR
         """
         params = json.loads(json.dumps(data))
         headers = {}
@@ -121,8 +120,8 @@ class BaseClient:
         res = self._session.request(method, url, **args)
         try:
             e = res.json()
-            if 'error' in e and 'error_code' in e:
-                raise APIError(e['error_code'], e['error'])
+            if 'code' in e and 'message' in e:
+                raise APIError(e['code'], e['message'])
             return e
-        except JSONDecodeError:
-            raise Exception(f'valr-python: unknown API error ({res.status_code})')
+        except JSONDecodeError as jde:
+            raise APIException(res.status_code, f'valr-python: unknown API error. HTTP ({res.status_code}): {jde.msg}')

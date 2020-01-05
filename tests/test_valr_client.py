@@ -1,16 +1,9 @@
 import pytest
 import requests_mock
 
-from valr_python import Client
-from valr_python.error import APIError
-from valr_python.error import RequiresAuthentication
-
-
-@pytest.fixture
-def mock_client():
-    c = Client()
-    c.base_url = 'mock://test/'
-    return c
+from valr_python.exceptions import APIError
+from valr_python.exceptions import APIException
+from valr_python.exceptions import RequiresAuthentication
 
 
 def test_client_attrs(mock_client):
@@ -32,6 +25,7 @@ def test_client_do_authentication(mock_client):
     adapter.register_uri('GET', 'mock://test/', text='{}', status_code=200)
 
     with pytest.raises(RequiresAuthentication):
+        # fail as no api key/secret
         mock_client._do('GET', 'mock://test/', is_authenticated=True)
 
     # no exceptions, because no error present
@@ -52,21 +46,25 @@ def test_client_do_basic(mock_client):
     adapter = requests_mock.Adapter()
     mock_client._session.mount('mock', adapter)
 
-    adapter.register_uri('GET', 'mock://test/', text='ok')
-    with pytest.raises(Exception):
-        mock_client._do('GET', '/')
-
-    adapter.register_uri('GET', 'mock://test/', text='{"key":"value"}')
+    # valid k/v responses
+    adapter.register_uri('GET', 'mock://test/', text='{"key": "value"}')
     res = mock_client._do('GET', '/')
     assert res['key'] == 'value'
 
+    # no exception, because no error present
     adapter.register_uri('GET', 'mock://test/', text='{}', status_code=400)
-    mock_client._do('GET', '/')  # no exception, because no error present
+    mock_client._do('GET', '/')
 
+    # check api error handling
     adapter.register_uri('GET', 'mock://test/',
-                         text='{"error_code":"code","error":"message"}',
+                         text='{"code":"-12345", "message":"api error message"}',
                          status_code=400)
     with pytest.raises(APIError) as e:
         mock_client._do('GET', '/')
-    assert e.value.code == 'code'
-    assert e.value.message == 'message'
+    assert e.value.code == '-12345'
+    assert e.value.message == 'api error message'
+
+    # check invalid responses exception handling
+    adapter.register_uri('GET', 'mock://test/', text='invalid json response')
+    with pytest.raises(APIException):
+        mock_client._do('GET', '/')

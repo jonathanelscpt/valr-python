@@ -1,4 +1,10 @@
+from typing import Dict
+from typing import List
+from typing import Union
+
 from .base_client import BaseClient
+from .decorator import requires_authentication
+from .decorator import xor_validation
 
 
 class Client(BaseClient):
@@ -17,7 +23,7 @@ class Client(BaseClient):
 
     # Public APIs
 
-    def get_order_book_public(self, currency_pair):
+    def get_order_book_public(self, currency_pair: str) -> Dict[str, List]:
         """Makes a call to GET https://api.valr.com/v1/public/:currencyPair/orderbook
 
         Returns a list of the top 20 bids and asks in the order book.
@@ -29,97 +35,115 @@ class Client(BaseClient):
 
         :param currency_pair: Currency pair for which you want to query the order book.
         Supported currency pairs: BTCZAR, ETHZAR
-        :type currency_pair: str
+        :return public order book for currency pair
         """
         return self._do('GET', f'/v1/public/{currency_pair}/orderbook')
 
-    def get_currencies(self):
+    def get_currencies(self) -> List[Dict]:
         """Makes a call to GET https://api.valr.com/v1/public/currencies
 
         Get a list of currencies supported by VALR.
+
+        :return: list of currencies
         """
         return self._do('GET', '/v1/public/currencies')
 
-    def get_currency_pairs(self):
+    def get_currency_pairs(self) -> List[Dict]:
         """Makes a call to GET https://api.valr.com/v1/public/pairs
 
         Get a list of all the currency pairs supported by VALR.
+
+        :return: list of currency pairs
         """
         return self._do('GET', '/v1/public/pairs')
 
-    def get_order_types(self):
+    def get_order_types(self, currency_pair: str = None) -> Union[List[Dict], List[str]]:
         """Makes a call to GET https://api.valr.com/v1/public/ordertypes
 
         Get all the order types supported for all currency pairs.
 
         An array of currency pairs is returned along with an array of order types for each currency pair.
         You can only place an order that is supported by that currency pair.
-        """
-        return self._do('GET', '/v1/public/ordertypes')
 
-    def get_order_type_for_currency_pair(self, currency_pair):
-        """Makes a call to GET https://api.valr.com/v1/public/:currencyPair/ordertypes
+
+        OR
+
+
+        Makes a call to GET https://api.valr.com/v1/public/:currencyPair/ordertypes
 
         Get the order types supported for a given currency pair.
 
         An array of order types is returned. You can only place an order that is listed in this
         array for this currency pair.
 
+
         :param currency_pair: Specify the currency pair for which you want to query the order types.
         Examples: BTCZAR, ETHZAR, ADABTC, ADAETH etc.
-        :type currency_pair: str
+        :return: list of order types
         """
-        return self._do('GET', f'/v1/public/{currency_pair}/ordertypes')
+        if currency_pair:
+            self._do('GET', f'/v1/public/{currency_pair}/ordertypes')
+        else:
+            return self._do('GET', '/v1/public/ordertypes')
 
-    def get_market_summary(self):
+    def get_market_summary(self, currency_pair: str = None) -> Union[List[Dict], Dict]:
         """Makes a call to GET https://api.valr.com/v1/public/marketsummary
 
         Get the market summary for all supported currency pairs.
-        """
-        return self._do('GET', '/v1/public/marketsummary')
-    # todo - flatten
 
-    def get_market_summary_for_currency_pair(self, currency_pair):
-        """Makes a call to GET https://api.valr.com/v1/public/:currencyPair/marketsummary
+
+        OR
+
+
+        Makes a call to GET https://api.valr.com/v1/public/:currencyPair/marketsummary
 
         Get the market summary for a given currency pair.
 
         :param currency_pair: Specify the currency pair for which you want to query the order types.
         Examples: BTCZAR, ETHZAR, ADABTC, ADAETH etc.
-        :type currency_pair: str
+        :return: summary of market orders
         """
-        return self._do('GET', f'/v1/public/{currency_pair}/marketsummary')
-    # todo - flatten
+        if currency_pair:
+            return self._do('GET', f'/v1/public/{currency_pair}/marketsummary')
+        else:
+            return self._do('GET', '/v1/public/marketsummary')
 
-    def get_server_time(self):
+    def get_server_time(self) -> Dict:
         """Makes a call to GET https://api.valr.com/v1/public/time
 
         Get the server time. Please note: The server time is returned in seconds.
+
+        :return: server time
         """
         return self._do('GET', '/v1/public/time')
 
     # Account APIs
 
-    def get_balances(self):
+    @requires_authentication
+    def get_balances(self) -> List[Dict]:
         """Makes a call to GET https://api.valr.com/v1/account/balances
 
         Returns the list of all wallets with their respective balances.
+
+        :return: list of wallets with balances
         """
         return self._do('GET', '/v1/account/balances', is_authenticated=True)
 
-    def get_transaction_history(self, skip=0, limit=100):
+    @requires_authentication
+    def get_transaction_history(self, skip: int = 0, limit: int = 100) -> List[Dict]:
         """Makes a call to GET https://api.valr.com/v1/account/transactionhistory?skip=0&limit=100
 
         Transaction history for your account. Note: This API supports pagination.
 
         :param limit: Limit the number of items returned
-        :type limit: int
         :param skip: Skip number of items from the list
-        :type skip: int
+
+        :return: list of historical transactions
         """
         return self._do('GET', f'/v1/account/transactionhistory?skip={skip}&limit={limit}', is_authenticated=True)
 
-    def get_trade_history_for_currency_pair(self, currency_pair, limit=10):
+    @requires_authentication
+    def get_account_trade_history(self, currency_pair: str, limit: int = 10) -> List[Dict]:
         """Makes a call to GET https://api.valr.com/v1/account/:currencyPair/tradehistory?limit=10
 
         Get the last 100 recent trades for a given currency pair for your account.
@@ -127,25 +151,26 @@ class Client(BaseClient):
 
         :param currency_pair: Specify the currency pair for which you want to query the trade history.
         Examples: BTCZAR, ETHZAR
-        :type currency_pair: str
         :param limit: Limit the number of items returned
-        :type limit: int
+        :return: list of historical trades
         """
         return self._do('GET', f'/v1/account/{currency_pair}/tradehistory?limit={limit}', is_authenticated=True)
 
     # Crypto Wallet APIs
 
-    def get_deposit_address(self, currency_code):
+    @requires_authentication
+    def get_deposit_address(self, currency_code: str) -> Dict:
         """Makes a call to GET https://api.valr.com/v1/wallet/crypto/:currencyCode/deposit/address
 
         Returns the default deposit address associated with currency specified in the path variable `:currencyCode`.
 
         :param currency_code: Currently, the allowed values here are BTC and ETH.
-        :type currency_code: str
+        :return: currency wallet address
         """
         return self._do('GET', f'/v1/wallet/crypto/{currency_code}/deposit/address', is_authenticated=True)
 
-    def get_withdrawal_info(self, currency_code):
+    @requires_authentication
+    def get_withdrawal_info(self, currency_code: str) -> Dict:
         """Makes a call to GET https://api.valr.com/v1/wallet/crypto/:currencyCode/withdraw
 
         Get all the information about withdrawing a given currency from your VALR account.
@@ -153,11 +178,13 @@ class Client(BaseClient):
 
         :param currency_code: This is the currency code of the currency you want withdrawal information about.
         Examples: BTC, ETH, XRP, ADA, etc.
-        :type currency_code: str
+        :return: currency withdrawal information
         """
         return self._do('GET', f'/v1/wallet/crypto/{currency_code}/withdraw', is_authenticated=True)
 
-    def post_new_crypto_withdrawal(self, currency_code, amount, address, payment_reference=None):
+    @requires_authentication
+    def post_new_crypto_withdrawal(self, currency_code: str, amount: float, address: str,
+                                   payment_reference: str = "") -> Dict:
         """Makes a call to POST https://api.valr.com/v1/wallet/crypto/:currencyCode/withdraw
 
         Withdraw cryptocurrency funds to an address.
@@ -167,98 +194,93 @@ class Client(BaseClient):
 
         :param currency_code: This is the currency code of the currency you want withdrawal information about.
         Examples: BTC, ETH, XRP, ADA, etc.
-        :type currency_code: str
-        :param amount: Amount of
-        :type amount: str
+        :param amount: Amount of currency
         :param address: This is the currency code of the currency you want withdrawal information about.
         Examples: BTC, ETH, XRP, ADA, etc.
-        :type address: str
         :param payment_reference: optional field called "paymentReference". Max length for paymentReference is 256.
-        :type payment_reference: str
+        :return: withdrawal id
         """
         data = {"amount": amount, "address": address}
         if payment_reference:
             data["paymentReference"] = payment_reference
-        return self._do('POST', f'/v1/wallet/crypto/{currency_code}/withdraw', is_authenticated=True, data=data)
+        return self._do('POST', f'/v1/wallet/crypto/{currency_code}/withdraw', data=data, is_authenticated=True)
 
-    def get_withdrawal_status(self, currency_code, withdraw_id):
+    @requires_authentication
+    def get_withdrawal_status(self, currency_code: str, withdraw_id: str) -> Dict:
         """Makes a call to GET https://api.valr.com/v1/wallet/crypto/:currencyCode/withdraw/:withdrawId
 
         Check the status of a withdrawal.
 
         :param currency_code: This is the currency code for the currency you have withdrawn.
         Examples: BTC, ETH, XRP, ADA, etc.
-        :type currency_code: str
         :param withdraw_id: The unique id that represents your withdrawal request.
         This is provided as a response to the API call to withdraw.
-        :type withdraw_id: str
+        :return: withdrawal status information
         """
         return self._do('GET', f'/v1/wallet/crypto/{currency_code}/withdraw/{withdraw_id}', is_authenticated=True)
 
-    def get_deposit_history(self, currency_code, skip=0, limit=10):
+    @requires_authentication
+    def get_deposit_history(self, currency_code: str, skip: int = 0, limit: int = 10) -> List[Dict]:
         """Makes a call to GET https://api.valr.com/v1/wallet/crypto/:currencyCode/deposit/history?skip=0&limit=10
 
         Get the Deposit History records for a given currency.
 
         :param currency_code: This is the currency code for the currency you have withdrawn.
         Examples: BTC, ETH, XRP, ADA, etc.
-        :type currency_code: str
         :param skip: Skip number of items from the list.
-        :type skip: int
         :param limit: Limit the number of items returned.
-        :type limit: int
+        :return: list of historical deposits
         """
         return self._do('GET', f'/v1/wallet/crypto/{currency_code}/deposit/history?skip={skip}&limit={limit}',
                         is_authenticated=True)
 
-    def get_withdrawal_history(self, currency_code, skip=0, limit=10):
+    @requires_authentication
+    def get_withdrawal_history(self, currency_code: str, skip: int = 0, limit: int = 10) -> List[Dict]:
         """Makes a call to GET https://api.valr.com/v1/wallet/crypto/:currencyCode/withdraw/history?skip=0&limit=10
 
         Get Withdrawal History records for a given currency.
 
         :param currency_code: This is the currency code for the currency you have withdrawn.
         Examples: BTC, ETH, XRP, ADA, etc.
-        :type currency_code: str
         :param skip: Skip number of items from the list.
-        :type skip: int
         :param limit: Limit the number of items returned.
-        :type limit: int
+        :return: list of historical withdrawals
         """
         return self._do('GET', f'/v1/wallet/crypto/{currency_code}/withdraw/history?skip={skip}&limit={limit}',
                         is_authenticated=True)
 
     # Fiat Wallet APIs
 
-    def get_bank_accounts(self, currency_code):
+    @requires_authentication
+    def get_bank_accounts(self, currency_code: str) -> List[Dict]:
         """Makes a call to GET https://api.valr.com/v1/wallet/fiat/:currencyCode/accounts
 
         Get a list of bank accounts that are linked to your VALR account.
         Bank accounts can be linked by signing in to your account on www.VALR.com.
 
         :param currency_code: The currency code for the fiat currency. Supported: ZAR.
-        :type currency_code: str
+        :return: list of bank accounts
         """
         return self._do('GET', f'/v1/wallet/fiat/{currency_code}/accounts', is_authenticated=True)
 
-    def post_new_fiat_withdrawal(self, currency_code, linked_bank_account_id, amount):
+    @requires_authentication
+    def post_new_fiat_withdrawal(self, currency_code: str, linked_bank_account_id: str, amount: float) -> Dict:
         """Makes a call to POST https://api.valr.com/v1/wallet/fiat/:currencyCode/withdraw
 
         Withdraw your ZAR funds into one of your linked bank accounts.
 
         :param currency_code: The currency code for the fiat currency. Supported: ZAR.
-        :type currency_code: str
-        :param amount:
-        :type amount: float
-        :param linked_bank_account_id:
-        :type linked_bank_account_id: str
-
+        :param linked_bank_account_id: bank account for withdrawal
+        :param amount: withdrawal amount
+        :return: withdrawal transaction id
         """
         data = {"linkedBankAccountId": linked_bank_account_id, "amount": amount}
-        return self._do('POST', f'/v1/wallet/fiat/{currency_code}/withdraw', is_authenticated=True, data=data)
+        return self._do('POST', f'/v1/wallet/fiat/{currency_code}/withdraw', data=data, is_authenticated=True)
 
     # Market Data APIs
 
-    def get_order_book(self, currency_pair):
+    @requires_authentication
+    def get_order_book(self, currency_pair: str) -> Dict[str, List]:
         """Makes a call to GET https://api.valr.com/v1/marketdata/:currencyPair/orderbook
 
         Returns a list of the top 20 bids and asks in the order book.
@@ -267,11 +289,12 @@ class Client(BaseClient):
 
         :param currency_pair: Currency pair for which you want to query the order book.
         Supported currency pairs: BTCZAR.
-        :type currency_pair: str
+        :return: order book list of asks and list of bids
         """
         return self._do('GET', f'/v1/marketdata/{currency_pair}/orderbook', is_authenticated=True)
 
-    def get_order_book_full(self, currency_pair):
+    @requires_authentication
+    def get_order_book_full(self, currency_pair: str) -> Dict[str, List]:
         """Makes a call to GET https://api.valr.com/v1/marketdata/:currencyPair/orderbook/full
 
         Returns a list of all the bids and asks in the order book.
@@ -280,11 +303,12 @@ class Client(BaseClient):
 
         :param currency_pair: Currency pair for which you want to query the order book.
         Supported currency pairs: BTCZAR.
-        :type currency_pair: str
+        :return: full order book list of asks and list of bids
         """
         return self._do('GET', f'/v1/marketdata/{currency_pair}/orderbook/full', is_authenticated=True)
 
-    def get_trade_history(self, currency_pair, limit=10):
+    @requires_authentication
+    def get_market_data_trade_history(self, currency_pair: str, limit: int = 10) -> List[Dict]:
         """Makes a call to GET https://api.valr.com/v1/marketdata/:currencyPair/tradehistory?limit=10
 
         Get the last 100 recent trades for a given currency pair.
@@ -292,15 +316,15 @@ class Client(BaseClient):
 
         :param currency_pair: Currency pair for which you want to query the order book.
         Supported currency pairs: BTCZAR.
-        :type currency_pair: str
         :param limit: Limit the number of items returned.
-        :type limit: int
+        :return: list of historical trades
         """
         return self._do('GET', f'/v1/marketdata/{currency_pair}/tradehistory?limit={limit}', is_authenticated=True)
 
     # Simple Buy/Sell APIs
 
-    def post_simple_quote(self, currency_pair, pay_in_currency, pay_amount, side):
+    @requires_authentication
+    def post_simple_quote(self, currency_pair: str, pay_in_currency: str, pay_amount: float, side: str) -> Dict:
         """Makes a call to POST https://api.valr.com/v1/simple/:currencyPair/quote
 
         Get a quote to buy or sell instantly using Simple Buy.
@@ -324,18 +348,16 @@ class Client(BaseClient):
 
         :param currency_pair: Currency pair to get a simple quote for.
         Any currency pair that supports the "simple" order type, can be specified.
-        :type currency_pair: str
         :param pay_in_currency: crypto currency
-        :type pay_in_currency: str
         :param pay_amount: crypto currency pay amount
-        :type pay_amount: float
         :param side: side is SELL or BUY
-        :type side: str
+        :return: simple quote data
         """
         data = {"payInCurrency": pay_in_currency, "payAmount": pay_amount, "side": side}
-        return self._do('POST', f'/v1/simple/{currency_pair}/quote', is_authenticated=True, data=data)
+        return self._do('POST', f'/v1/simple/{currency_pair}/quote', data=data, is_authenticated=True)
 
-    def post_simple_order(self, currency_pair, pay_in_currency, pay_amount, side):
+    @requires_authentication
+    def post_simple_order(self, currency_pair: str, pay_in_currency: str, pay_amount: float, side: str) -> Dict:
         """Makes a call to POST https://api.valr.com/v1/simple/:currencyPair/order
 
         Submit an order to buy or sell instantly using Simple Buy/Sell.
@@ -359,33 +381,32 @@ class Client(BaseClient):
 
         :param currency_pair: Currency pair to get a simple quote for.
         Any currency pair that supports the "simple" order type, can be specified.
-        :type currency_pair: str
         :param pay_in_currency: crypto currency
-        :type pay_in_currency: str
         :param pay_amount: crypto currency pay amount
-        :type pay_amount: float
         :param side: side is SELL or BUY
-        :type side: str
+        :return: simple order data
         """
         data = {"payInCurrency": pay_in_currency, "payAmount": pay_amount, "side": side}
-        return self._do('POST', f'/v1/simple/{currency_pair}/order', is_authenticated=True, data=data)
+        return self._do('POST', f'/v1/simple/{currency_pair}/order', data=data, is_authenticated=True)
 
-    def get_simple_order_status(self, currency_pair, order_id):
+    @requires_authentication
+    def get_simple_order_status(self, currency_pair: str, order_id: str) -> Dict:
         """Makes a call to GET https://api.valr.com/v1/simple/:currencyPair/order/:orderId
 
         Get the status of a Simple Buy/Sell order.
 
         :param currency_pair: Currency pair you want a simple buy/sell quote for.
         Supported currency pairs: BTCZAR.
-        :type currency_pair: str
         :param order_id: Order Id of the order for which you are querying the status.
-        :type order_id: str
+        :return: simple order data
         """
         return self._do('GET', f'/v1/simple/{currency_pair}/order/{order_id}', is_authenticated=True)
 
     # Exchange Buy/Sell APIs
 
-    def post_limit_order(self, side, quantity, price, pair, post_only=False, customer_order_id=None):
+    @requires_authentication
+    def post_limit_order(self, side: str, quantity: float, price: float, pair: str, post_only: bool = False,
+                         customer_order_id: str = None) -> Dict:
         """Makes a call to POST https://api.valr.com/v1/orders/limit
 
         Create a new limit order.
@@ -444,18 +465,12 @@ class Client(BaseClient):
         - Insufficient liquidity: If you're placing an order and there isn't liquidity to fulfill the order.
 
         :param side: BUY or SELL
-        :type side: str
         :param quantity: Base amount in BTC
-        :type quantity: float
         :param price: Price per coin in ZAR
-        :type price: float
         :param pair: BTCZAR etc.
-        :type pair: str
         :param post_only: true or false
-        :type post_only: bool
         :param customer_order_id: Numeric value.
-        :type customer_order_id: str
-        :return:
+        :return: order id
         """
         data = {
             "side": side,
@@ -467,10 +482,13 @@ class Client(BaseClient):
             data["postOnly"] = post_only
         if customer_order_id:
             data["customerOrderId"] = customer_order_id
-        return self._do('POST', f'/v1/orders/limit', is_authenticated=True, data=data)
+        return self._do('POST', f'/v1/orders/limit', data=data, is_authenticated=True)
     # TODO - check 202 Accepted
 
-    def post_market_order(self, side, pair, base_amount=None, quote_amount=None, customer_order_id=None):
+    @requires_authentication
+    @xor_validation("base_amount", "quote_amount")
+    def post_market_order(self, side: str, pair: float, base_amount: float = None, quote_amount: float = None,
+                          customer_order_id: str = None) -> Dict:
         """Makes a call to POST https://api.valr.com/v1/orders/market
 
         Create a new market order.
@@ -521,33 +539,28 @@ class Client(BaseClient):
         - Insufficient liquidity: If you're placing an order and there isn't liquidity to fulfill the order.
 
         :param side: BUY or SELL
-        :type side: str
         :param base_amount: Base amount for SELL (in BTC)
-        :type base_amount: float
         :param quote_amount: Quote amount for BUY (in ZAR).
-        :type quote_amount: float
         :param pair: BTCZAR etc.
-        :type pair: str
         :param customer_order_id: Numeric value.
-        :type customer_order_id: str
-        :return:
+        :return: order id
         """
-        if not (base_amount or quote_amount) or (base_amount and quote_amount):
-            raise KeyError("Either base_amount or quote_amount must be supplied, but not both.")
         data = {
             "side": side,
             "pair": pair
         }
         if base_amount:
-            data["quoteAmount"] = base_amount
+            data["baseAmount"] = base_amount
         else:
             data["quoteAmount"] = quote_amount
         if customer_order_id:
             data["customerOrderId"] = customer_order_id
-        return self._do('POST', f'/v1/orders/market', is_authenticated=True, data=data)
+        return self._do('POST', f'/v1/orders/market', data=data, is_authenticated=True)
     # TODO - check 202 Accepted
 
-    def get_order_status(self, currency_pair, order_id):
+    @requires_authentication
+    @xor_validation("order_id", "customer_order_id")
+    def get_order_status(self, currency_pair: str, order_id: str = None, customer_order_id: str = None) -> Dict:
         """Makes a call to GET https://api.valr.com/v1/orders/:currencyPair/orderid/:orderId
 
         This API returns the status of an order that was placed on the Exchange queried using the id provided by VALR.
@@ -557,50 +570,56 @@ class Client(BaseClient):
         Note: If a customerOrderId was also specified while placing the order,
         that customerOrderId will be returned as part of the response.
 
-        :param currency_pair: Currency pair
-        :type currency_pair: str
-        :param order_id: Order Id provided by VALR
-        :type order_id: str
-        """
-        return self._do('GET', f'/v1/orders/{currency_pair}/orderid/{order_id}', is_authenticated=True)
 
-    def get_order_status_from_customer_order_id(self, currency_pair, customer_order_id):
-        """Makes a call to GET https://api.valr.com/v1/orders/:currencyPair/customerorderid/:customerOrderId
+        OR
+
+
+        Makes a call to GET https://api.valr.com/v1/orders/:currencyPair/customerorderid/:customerOrderId
 
         This API returns the status of an order that was placed on the Exchange queried using customerOrderId.
         The customer can specify a customerOrderId while placing an order on the Exchange.
         Use this API to query the order status using that customerOrderId.
 
-        :param currency_pair: Currency pair
-        :type currency_pair: str
-        :param customer_order_id: Order Id provided by customer when creating the order
-        :type customer_order_id: str
-        """
-        return self._do('GET', f'/v1/orders/{currency_pair}/customerorderid/{customer_order_id}', is_authenticated=True)
 
-    def get_all_open_orders(self):
+        :param currency_pair: Currency pair
+        :param order_id: Order Id provided by VALR
+        :param customer_order_id: Order Id provided by customer when creating the order
+        :return: order status data
+        """
+        if customer_order_id:
+            return self._do('GET', f'/v1/orders/{currency_pair}/customerorderid/{customer_order_id}',
+                            is_authenticated=True)
+        else:
+            return self._do('GET', f'/v1/orders/{currency_pair}/orderid/{order_id}', is_authenticated=True)
+
+    @requires_authentication
+    def get_all_open_orders(self) -> List[Dict]:
         """Makes a call to GET https://api.valr.com/v1/orders/open
 
         Get all open orders for your account.
 
         A customerOrderId field will be returned in the response for all those orders
         that were created with a customerOrderId field.
+
+        :return: list of open orders
         """
         return self._do('GET', f'/v1/orders/open', is_authenticated=True)
 
-    def get_order_history(self, skip=0, limit=2):
+    @requires_authentication
+    def get_order_history(self, skip: int = 0, limit: int = 2) -> List[Dict]:
         """Makes a call to GET https://api.valr.com/v1/orders/history?skip=0&limit=2
 
         Get historical orders placed by you.
 
         :param skip: Skip number of items from the list.
-        :type skip: int
         :param limit: Limit the number of items returned.
-        :type limit: int
+        :return: list of historical orders
         """
         return self._do('GET', f'/v1/orders/history?skip={skip}&limit={limit}', is_authenticated=True)
 
-    def get_order_history_summary(self, order_id):
+    @requires_authentication
+    @xor_validation("order_id", "customer_order_id")
+    def get_order_history_summary(self, order_id: str = None, customer_order_id: str = None) -> Dict:
         """Makes a call to GET https://api.valr.com/v1/orders/history/summary/orderid/:orderId
 
         An order is considered completed when the "Order Status" call returns one of the following statuses:
@@ -610,13 +629,11 @@ class Client(BaseClient):
         When this happens, you can get a more detailed summary about this order using this call.
         Orders that are not completed are invalid for this request.
 
-        :param order_id: Order Id provided by VALR
-        :type order_id: str
-        """
-        return self._do('GET', f'/v1/orders/history/summary/orderid/{order_id}', is_authenticated=True)
 
-    def get_order_history_summary_from_customer_order_id(self, customer_order_id):
-        """Makes a call to GET https://api.valr.com/v1/orders/history/summary/customerorderid/:customerOrderId
+        OR
+
+
+        Makes a call to GET https://api.valr.com/v1/orders/history/summary/customerorderid/:customerOrderId
 
         An order is considered completed when the "Order Status" call returns one of the following statuses:
 
@@ -625,34 +642,48 @@ class Client(BaseClient):
         When this happens, you can get a more detailed summary about this order using this call.
         Orders that are not completed are invalid for this request.
 
-        :param customer_order_id: Order Id provided by the customer
-        :type customer_order_id: str
-        """
-        return self._do('GET', f'/v1/orders/history/summary/customerorderid/{customer_order_id}', is_authenticated=True)
 
-    def get_order_history_detail(self, order_id):
+        :param order_id: Order Id provided by VALR
+        :param customer_order_id: Order Id provided by the customer
+        :return: order summary
+        """
+        if customer_order_id:
+            return self._do('GET', f'/v1/orders/history/summary/customerorderid/{customer_order_id}',
+                            is_authenticated=True)
+        else:
+            return self._do('GET', f'/v1/orders/history/summary/orderid/{order_id}', is_authenticated=True)
+
+    @requires_authentication
+    @xor_validation("order_id", "customer_order_id")
+    def get_order_history_detail(self, order_id: str = None, customer_order_id: str = None) -> Dict:
         """Makes a call to GET https://api.valr.com/v1/orders/history/detail/orderid/:orderId
 
         Get a detailed history of an order's statuses. This call returns an array of "Order Status" objects.
         The latest and most up-to-date status of this order is the zeroth element in the array.
 
-        :param order_id: Order Id provided by VALR
-        :type order_id: str
-        """
-        return self._do('GET', f'/v1/orders/history/detail/orderid/{order_id}', is_authenticated=True)
 
-    def get_order_history_detail_from_customer_order_id(self, customer_order_id):
-        """Makes a call to GET https://api.valr.com/v1/orders/history/detail/customerorderid/:customerOrderId
+        OR
+
+
+        Makes a call to GET https://api.valr.com/v1/orders/history/detail/customerorderid/:customerOrderId
 
         Get a detailed history of an order's statuses. This call returns an array of "Order Status" objects.
         The latest and most up-to-date status of this order is the zeroth element in the array.
 
-        :param customer_order_id: Order Id provided by the customer
-        :type customer_order_id: str
-        """
-        return self._do('GET', f'/v1/orders/history/detail/customerorderid/{customer_order_id}', is_authenticated=True)
 
-    def delete_order(self, pair, order_id=None, customer_order_id=None):
+        :param order_id: Order Id provided by VALR
+        :param customer_order_id: Order Id provided by the customer
+        :return: detailed order history
+        """
+        if customer_order_id:
+            return self._do('GET', f'/v1/orders/history/detail/customerorderid/{customer_order_id}',
+                            is_authenticated=True)
+        else:
+            return self._do('GET', f'/v1/orders/history/detail/orderid/{order_id}', is_authenticated=True)
+
+    @requires_authentication
+    @xor_validation("order_id", "customer_order_id")
+    def delete_order(self, pair, order_id: str = "", customer_order_id: str = None) -> None:
         """Makes a call to DELETE https://api.valr.com/v1/orders/order
 
         Cancel an open order.
@@ -678,18 +709,14 @@ class Client(BaseClient):
         or use WebSocket API to receive status update about this order.
 
         :param pair: Currency pair
-        :type pair: str
         :param order_id: Order Id provided by VALR
-        :type order_id: str
         :param customer_order_id: Order Id provided by the customer
-        :type customer_order_id: str
+        :return: None
         """
-        if not (customer_order_id or order_id) or (customer_order_id and order_id):
-            raise KeyError("Either base_amount or quote_amount must be supplied, but not both.")
         data = {"pair": pair}
         if order_id:
             data["orderId"] = order_id
         else:
             data["customerOrderId"] = customer_order_id
-        return self._do('DELETE', f'/v1/orders/order', is_authenticated=True, data=data)
+        return self._do('DELETE', f'/v1/orders/order', data=data, is_authenticated=True)
     # TODO - check 202 Accepted

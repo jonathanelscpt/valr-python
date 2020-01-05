@@ -15,7 +15,7 @@ Changelog
 0.1.1 (2019-12-31)
 ------------------
 
-* correct build error issue in setup.py
+* corrected build error issue in setup.py
 
 0.1.2 (2019-12-31)
 ------------------
@@ -28,3 +28,9 @@ Changelog
 * Fixed defect with empty body signed signatures
 * Updated class importing
 * Added additional docstrings and unit tests
+
+0.1.4 (2020-01-04)
+------------------
+
+* Streamlined ordering api calls with decorators
+* Added typing for all api calls
