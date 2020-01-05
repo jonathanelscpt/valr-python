@@ -1,7 +1,7 @@
 import pytest
 
-from valr_python.decorator import check_xor_attrs
-from valr_python.decorator import requires_authentication
+from valr_python.decorators import check_xor_attrs
+from valr_python.decorators import requires_authentication
 from valr_python.exceptions import RequiresAuthentication
 
 

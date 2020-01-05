@@ -1,5 +1,5 @@
 
-Changelog   
+Changelog
 =========
 
 0.1.4 (2020-01-04)

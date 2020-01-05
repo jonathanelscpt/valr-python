@@ -8,8 +8,8 @@ from typing import Union
 
 import requests
 
-from .decorator import check_xor_attrs
-from .decorator import requires_authentication
+from .decorators import check_xor_attrs
+from .decorators import requires_authentication
 
 DEFAULT_TIMEOUT = 10
 
