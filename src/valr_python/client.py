@@ -5,6 +5,8 @@ from typing import Dict
 from typing import List
 from typing import Union
 
+from requests.exceptions import HTTPError
+
 from .base_client import MethodClientABC
 from .base_client import sign_request
 from .exceptions import APIError
@@ -54,9 +56,19 @@ class Client(MethodClientABC):
         args = dict(timeout=self._timeout, params=params, headers=headers)
         res = self._session.request(method, url, **args)
         try:
+            res.raise_for_status()
             e = res.json()
             if 'code' in e and 'message' in e:
-                raise APIError(e['code'], e['message'])
+                raise APIError(e['code'], e['message'])  # API errors within 200 OK responses
             return e
+        except HTTPError as he:
+            try:
+                e = res.json()
+                if 'code' in e and 'message' in e:
+                    raise APIError(e['code'], e['message'])
+                raise he  # bubble HTTP errors that the VALR API doesn't report on
+            except JSONDecodeError:
+                pass  # catch and pass json decode failures to outer try
         except JSONDecodeError as jde:
-            raise APIException(res.status_code, f'valr-python: unknown API error. HTTP ({res.status_code}): {jde.msg}')
+            raise APIException(res.status_code,
+                               f'valr-python: unknown API error. HTTP ({res.status_code}): {jde.msg}')

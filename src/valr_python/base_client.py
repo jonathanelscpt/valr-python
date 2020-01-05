@@ -8,8 +8,8 @@ from typing import Union
 
 import requests
 
+from .decorator import check_xor_attrs
 from .decorator import requires_authentication
-from .decorator import xor_validation
 
 DEFAULT_TIMEOUT = 10
 
@@ -164,7 +164,7 @@ class MethodClientABC(BaseClientABC, metaclass=ABCMeta):
         :return: list of order types
         """
         if currency_pair:
-            self._do('GET', f'/v1/public/{currency_pair}/ordertypes')
+            return self._do('GET', f'/v1/public/{currency_pair}/ordertypes')
         else:
             return self._do('GET', '/v1/public/ordertypes')
 
@@ -568,7 +568,7 @@ class MethodClientABC(BaseClientABC, metaclass=ABCMeta):
     # TODO - check 202 Accepted
 
     @requires_authentication
-    @xor_validation("base_amount", "quote_amount")
+    @check_xor_attrs("base_amount", "quote_amount")
     def post_market_order(self, side: str, pair: float, base_amount: float = None, quote_amount: float = None,
                           customer_order_id: str = "") -> Dict:
         """Makes a call to POST https://api.valr.com/v1/orders/market
@@ -641,7 +641,7 @@ class MethodClientABC(BaseClientABC, metaclass=ABCMeta):
     # TODO - check 202 Accepted
 
     @requires_authentication
-    @xor_validation("order_id", "customer_order_id")
+    @check_xor_attrs("order_id", "customer_order_id")
     def get_order_status(self, currency_pair: str, order_id: str = "", customer_order_id: str = "") -> Dict:
         """Makes a call to GET https://api.valr.com/v1/orders/:currencyPair/orderid/:orderId
 
@@ -700,7 +700,7 @@ class MethodClientABC(BaseClientABC, metaclass=ABCMeta):
         return self._do('GET', f'/v1/orders/history?skip={skip}&limit={limit}', is_authenticated=True)
 
     @requires_authentication
-    @xor_validation("order_id", "customer_order_id")
+    @check_xor_attrs("order_id", "customer_order_id")
     def get_order_history_summary(self, order_id: str = "", customer_order_id: str = "") -> Dict:
         """Makes a call to GET https://api.valr.com/v1/orders/history/summary/orderid/:orderId
 
@@ -736,7 +736,7 @@ class MethodClientABC(BaseClientABC, metaclass=ABCMeta):
             return self._do('GET', f'/v1/orders/history/summary/orderid/{order_id}', is_authenticated=True)
 
     @requires_authentication
-    @xor_validation("order_id", "customer_order_id")
+    @check_xor_attrs("order_id", "customer_order_id")
     def get_order_history_detail(self, order_id: str = "", customer_order_id: str = "") -> Dict:
         """Makes a call to GET https://api.valr.com/v1/orders/history/detail/orderid/:orderId
 
@@ -764,7 +764,7 @@ class MethodClientABC(BaseClientABC, metaclass=ABCMeta):
             return self._do('GET', f'/v1/orders/history/detail/orderid/{order_id}', is_authenticated=True)
 
     @requires_authentication
-    @xor_validation("order_id", "customer_order_id")
+    @check_xor_attrs("order_id", "customer_order_id")
     def delete_order(self, pair, order_id: str = "", customer_order_id: str = "") -> None:
         """Makes a call to DELETE https://api.valr.com/v1/orders/order
 

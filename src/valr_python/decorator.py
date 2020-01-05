@@ -18,7 +18,7 @@ def requires_authentication(func):
     return inner
 
 
-def xor_validation(*xor_args: List[str]):
+def check_xor_attrs(*xor_args: List[str]):
     """Decorator to check that only one of two attributes was provided in function kwargs"""
 
     def xor_decorator(func):
