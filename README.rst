@@ -90,3 +90,15 @@ Note, to combine the coverage data from all the tox environments run:
 
             PYTEST_ADDOPTS=--cov-append tox
 
+
+Donate
+======
+
+If this library has helped you, or if you would like to support future development, donations are most welcome:
+
+==============  ==========================================
+Cryptocurrency  Address
+==============  ==========================================
+ **BTC**        38c7QWggrB2HLUJZFmhAC2zh4t8C57c1ec
+ **ETH**        0x01eD3b58a07c6d005281Db76e6c1AE2bfF2226AD
+==============  ==========================================

@@ -11,7 +11,7 @@ def requires_authentication(func):
     def inner(self, *args, **kwargs):
         if not (self._api_key and self._api_secret):
             raise RequiresAuthentication(
-                f"Cannot generate private request without API key/secret."
+                "cannot generate private request without API key/secret."
             )
         return func(self, *args, **kwargs)
 

@@ -33,4 +33,6 @@ Changelog
 ------------------
 
 * Streamlined ordering api calls with decorators
-* Added typing for all api calls
+* Added typing support
+* Re-worked class design internals to support later async expansion
+* Fixed bugs with str 'None' insertion with f-strings
