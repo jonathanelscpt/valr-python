@@ -9,9 +9,10 @@ Overview
 
     * - tests
       - | |travis|
-        |
     * - package
       - | |commits-since|
+    * - quality
+      - | |codacy|
 
 .. |travis| image:: https://api.travis-ci.org/jonathanelscpt/valr-python.svg?branch=master
     :alt: Travis-CI Build Status
@@ -21,7 +22,8 @@ Overview
     :alt: Commits since latest release
     :target: https://github.com/jonathanelscpt/valr-python/compare/v0.1.4...master
 
-
+.. |codacy| image:: https://api.codacy.com/project/badge/Grade/cb879e2a6be142b88d4e0c2b3a294fb3
+    :target: https://www.codacy.com/manual/jonathanelscpt/valr-python?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=jonathanelscpt/valr-python&amp;utm_campaign=Badge_Grade
 
 .. end-badges
 
