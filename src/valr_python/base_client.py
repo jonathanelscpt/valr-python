@@ -5,6 +5,7 @@ from abc import ABCMeta
 from abc import abstractmethod
 from typing import Dict
 from typing import List
+from typing import Optional
 from typing import Union
 
 import requests
@@ -92,8 +93,8 @@ class BaseClientABC(metaclass=ABCMeta):
             raise APIError(e['code'], e['message'])
 
     @abstractmethod
-    def _do(self, method: str, path: str, is_authenticated: bool = False,
-            data: Dict = None) -> Union[List, Dict, None]:
+    def _do(self, method: str, path: str, data: Dict = None,
+            is_authenticated: bool = False) -> Optional[Union[List, Dict]]:
         """Executes API request and returns the response.
 
         :param method: HTTP method (e.g. GET, POST, DELETE, etc.
@@ -142,7 +143,7 @@ class MethodClientABC(BaseClientABC, metaclass=ABCMeta):
 
     @abstractmethod
     def _do(self, method: str, path: str, is_authenticated: bool = False,
-            data: Dict = None) -> Union[List, Dict, None]:
+            data: Dict = None) -> Optional[Union[List, Dict]]:
         raise NotImplementedError
 
     # Public APIs

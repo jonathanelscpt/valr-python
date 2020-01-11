@@ -40,7 +40,6 @@ def test_client_do_authentication_success(mock_sync_client, mocker, mock_resp):
 
 def test_client_do_authentication_no_key_secret_pair(mock_sync_client, mocker, mock_resp):
     mocker.get('mock://test/', json=mock_resp)
-
     with pytest.raises(RequiresAuthentication):
         # fail as no api key/secret
         mock_sync_client._do('GET', '/', is_authenticated=True)
@@ -65,14 +64,11 @@ def test_client_do_200_ok_error_handling(mock_sync_client, mocker):
 def test_client_do_warn_on_202_response(mock_sync_client, mocker):
     _202_resp = {"id": "order-id"}
     mocker.get('mock://test/', json=_202_resp, status_code=202)
-    with pytest.warns(IncompleteOrderWarning):
+    with pytest.warns(IncompleteOrderWarning) as w:
         resp = mock_sync_client._do('GET', '/')
         assert resp == _202_resp
-    # check that warning bundles expected response data
-    try:
-        mock_sync_client._do('GET', '/')
-    except IncompleteOrderWarning as w:
-        assert w.data == _202_resp
+        # check that warning bundles expected response data
+        assert w[0].message.data == _202_resp
 
 
 def test_client_do_invalid_response_handling(mock_sync_client, mocker):

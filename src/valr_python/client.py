@@ -4,6 +4,7 @@ from json.decoder import JSONDecodeError
 from time import sleep
 from typing import Dict
 from typing import List
+from typing import Optional
 from typing import Union
 
 from requests.exceptions import HTTPError
@@ -30,7 +31,7 @@ class Client(MethodClientABC):
         """
 
     def _do(self, method: str, path: str, data: Dict = None,
-            is_authenticated: bool = False) -> Union[List, Dict, None]:
+            is_authenticated: bool = False) -> Optional[Union[List, Dict]]:
         """Executes API request and returns the response.
 
         Includes HTTP 429 handling by honouring VALR's 429 Retry-After header cool-down.
