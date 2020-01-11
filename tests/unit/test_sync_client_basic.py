@@ -11,28 +11,13 @@ def test_client_attrs(sync_client):
     sync_client.api_key = 'api_key'
     sync_client.base_url = 'base_url'
     sync_client.timeout = 10
+    sync_client.handle_429_errors = True
 
     assert sync_client.api_key == 'api_key'
     assert sync_client.api_secret == 'api_secret'
     assert sync_client.base_url == 'base_url'
     assert sync_client.timeout == 10
-
-
-def test_client_do_authentication(mock_sync_client, mocker, mock_json_resp):
-
-    mocker.get('mock://test/', json=mock_json_resp)
-
-    with pytest.raises(RequiresAuthentication):
-        # fail as no api key/secret
-        mock_sync_client._do('GET', '/', is_authenticated=True)
-
-    # no exceptions, because no error present
-    mock_sync_client._do('GET', '/')
-
-    mock_sync_client.api_secret = 'api_secret'
-    mock_sync_client.api_key = 'api_key'
-    resp = mock_sync_client._do('GET', '/', is_authenticated=True)
-    assert resp == mock_json_resp
+    assert sync_client.handle_429_errors is True
 
 
 def test_client_do_basic(mock_sync_client, mocker):
@@ -41,6 +26,22 @@ def test_client_do_basic(mock_sync_client, mocker):
     # valid k/v responses
     res = mock_sync_client._do('GET', '/')
     assert res['key'] == 'value'
+
+
+def test_client_do_authentication_success(mock_sync_client, mocker, mock_resp):
+    mocker.get('mock://test/', json=mock_resp)
+    mock_sync_client.api_secret = 'api_secret'
+    mock_sync_client.api_key = 'api_key'
+    resp = mock_sync_client._do('GET', '/', is_authenticated=True)
+    assert resp == mock_resp
+
+
+def test_client_do_authentication_no_key_secret_pair(mock_sync_client, mocker, mock_resp):
+    mocker.get('mock://test/', json=mock_resp)
+
+    with pytest.raises(RequiresAuthentication):
+        # fail as no api key/secret
+        mock_sync_client._do('GET', '/', is_authenticated=True)
 
 
 def test_client_do_api_error_handling(mock_sync_client, mocker):
@@ -73,9 +74,9 @@ def test_client_do_http_error_handling(mock_sync_client, mocker):
 
 
 def test_client_do_http_429_handling(mock_sync_client, mocker):
-    _429_response = {'status_code': 429, "headers": {"Retry-After": "1"}}
-    _200_ok_resp = {'json': {"key": "value"}, "status_code": 200}
-    resp_list = [_429_response, _200_ok_resp]
+    _429_resp = {'status_code': 429, "headers": {"Retry-After": "1"}}
+    _200_resp = {'json': {"key": "value"}, "status_code": 200}
+    resp_list = [_429_resp, _200_resp]
 
     # fail without 429 handling flag set
     mocker.get('mock://test/', resp_list)

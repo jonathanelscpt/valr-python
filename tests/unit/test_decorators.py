@@ -19,34 +19,29 @@ class DecoratorStub(object):
         return True
 
 
-def test_requires_authentication():
-
-    stub = DecoratorStub()
+@pytest.mark.parametrize('api_key, api_secret',
+                         [('api_key', None), (None, 'api_secret'), (None, None), ("", "")])
+def test_requires_authentication_failures(api_key, api_secret):
+    stub = DecoratorStub(api_secret=api_secret, api_key=api_key)
     with pytest.raises(RequiresAuthentication):
         stub.private_action()
 
-    stub._api_key = 'api_key'
-    with pytest.raises(RequiresAuthentication):
-        stub.private_action()
 
-    stub._api_key = None
-    stub._api_secret = 'api_secret'
-    with pytest.raises(RequiresAuthentication):
-        stub.private_action()
-
-    stub._api_key = 'api_key'
-    stub._api_secret = 'api_secret'
+@pytest.mark.parametrize('api_key, api_secret', [('api_key', ' api_secret')])
+def test_requires_authentication_successful(api_key, api_secret):
+    stub = DecoratorStub(api_secret=api_secret, api_key=api_key)
     assert stub.private_action() is True
 
 
-def test_check_xor_attrs():
+@pytest.mark.parametrize('attr1, attr2', [(False, False), (True, True), (None, None)])
+def test_check_xor_attrs_failures(attr1, attr2):
     stub = DecoratorStub()
-
     with pytest.raises(AttributeError):
-        stub.xor_function()
+        stub.xor_function(attr1=attr1, attr2=attr2)
 
-    with pytest.raises(AttributeError):
-        stub.xor_function(attr1=True, attr2=True)
 
-    assert stub.xor_function(attr1=True) is True
-    assert stub.xor_function(attr2=True) is True
+@pytest.mark.parametrize('attr1, attr2', [(True, False), (False, True), (True, None), (None, True)])
+def test_check_xor_attrs_successful(attr1, attr2):
+    stub = DecoratorStub()
+    assert stub.xor_function(attr1=attr1) is True
+    assert stub.xor_function(attr2=attr2) is True

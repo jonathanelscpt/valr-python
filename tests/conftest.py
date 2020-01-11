@@ -27,7 +27,7 @@ def mocker():
 
 
 @pytest.fixture
-def mock_json_resp():
+def mock_resp():
     return {}
 
 
