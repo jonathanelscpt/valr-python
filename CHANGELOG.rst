@@ -2,6 +2,13 @@
 Changelog
 =========
 
+0.1.5 (2020-01-11)
+------------------
+
+* Expanded test suites to unit, functional and live integration testing
+* Internal class refactoring
+* Added optional HTTP 429 handling by honouring the "Retry-After" header value sent in VALR responses
+
 0.1.4 (2020-01-04)
 ------------------
 
