@@ -17,4 +17,3 @@ class RequiresAuthentication(Exception):
 
 class TooManyRequestsWarning(UserWarning):
     """HTTP 429 recieved and handled"""
-    pass
