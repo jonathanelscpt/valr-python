@@ -144,6 +144,14 @@ class MethodClientABC(BaseClientABC, metaclass=ABCMeta):
     @abstractmethod
     def _do(self, method: str, path: str, data: Dict = None,
             is_authenticated: bool = False) -> Optional[Union[List, Dict]]:
+        """Executes API request and returns the response.
+
+        :param method: HTTP method (e.g. GET, POST, DELETE, etc.
+        :param path: REST API endpoint path
+        :param is_authenticated: bool flag if request should be authentication
+        :param data: params dict for request body
+        :return: requests response
+        """
         raise NotImplementedError
 
     # Public APIs
