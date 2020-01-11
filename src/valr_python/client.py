@@ -1,4 +1,5 @@
 import json
+import warnings
 from json.decoder import JSONDecodeError
 from time import sleep
 from typing import Dict
@@ -10,6 +11,7 @@ from requests.exceptions import HTTPError
 from .base_client import MethodClientABC
 from .exceptions import APIError
 from .exceptions import APIException
+from .exceptions import TooManyRequestsWarning
 
 
 class Client(MethodClientABC):
@@ -59,6 +61,8 @@ class Client(MethodClientABC):
                 if self._handle_429_errors:
                     try:
                         retry_after = float(res.headers['Retry-After'])
+                        warnings.warn(f"HTTP 429 received.  Applying requested {retry_after}sec back-off",
+                                      TooManyRequestsWarning)
                         sleep(retry_after)
                         return self._do(method=method, path=path, is_authenticated=is_authenticated, data=data)
                     except (KeyError, ValueError):

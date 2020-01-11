@@ -4,6 +4,7 @@ from requests.exceptions import HTTPError
 from valr_python.exceptions import APIError
 from valr_python.exceptions import APIException
 from valr_python.exceptions import RequiresAuthentication
+from valr_python.exceptions import TooManyRequestsWarning
 
 
 def test_client_attrs(sync_client):
@@ -83,11 +84,12 @@ def test_client_do_http_429_handling(mock_sync_client, mocker):
     with pytest.raises(HTTPError):
         mock_sync_client._do('GET', '/')
 
-    # handle 429s when enabled
-    mock_sync_client.handle_429_errors = True
-    mocker.get('mock://test/', resp_list)
-    res = mock_sync_client._do('GET', '/')
-    assert res['key'] == 'value'
+    # handle 429s when enabled and validate warning issued
+    with pytest.warns(TooManyRequestsWarning):
+        mock_sync_client.handle_429_errors = True
+        mocker.get('mock://test/', resp_list)
+        res = mock_sync_client._do('GET', '/')
+        assert res['key'] == 'value'
 
 
 @pytest.mark.parametrize('headers', [{}, {"Retry-After": "bogus"}])

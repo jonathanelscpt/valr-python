@@ -13,3 +13,8 @@ class APIException(Exception):
 class RequiresAuthentication(Exception):
     def __init__(self, message):
         self.message = message
+
+
+class TooManyRequestsWarning(UserWarning):
+    """HTTP 429 recieved and handled"""
+    pass
