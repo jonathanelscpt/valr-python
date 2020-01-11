@@ -58,14 +58,15 @@ To use the project:
 
 .. code-block:: python
 
-    from valr_python import Client
-
-    c = Client(api_key='api_key', api_secret='api_secret')
-    try:
-        res = c.get_market_summary()
-        print(res)
-    except Exception as e:
-        print(e)
+    >>> from valr_python import Client
+    >>> c = Client(api_key='api_key', api_secret='api_secret')
+    >>> try:
+    ...     res = c.get_deposit_address(currency_code="ETH")
+    ...     print(res)
+    ... except Exception as e:
+    ...     print(e)
+    ...
+    {"currency": "ETH", "address": "0xA7Fae2Fd50886b962d46FF4280f595A3982aeAa5"}
 
 
 Development

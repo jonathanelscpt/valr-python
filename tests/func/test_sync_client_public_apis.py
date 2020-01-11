@@ -1,6 +1,6 @@
 from valr_python.base_client import BaseClientABC
 
-BASE_URL = BaseClientABC.DEFAULT_BASE_URL
+BASE_URL = BaseClientABC.VALR_API_URL
 
 
 # Public APIs

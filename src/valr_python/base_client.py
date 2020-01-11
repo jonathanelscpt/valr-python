@@ -1,5 +1,6 @@
 import hashlib
 import hmac
+import time
 from abc import ABCMeta
 from abc import abstractmethod
 from typing import Dict
@@ -10,25 +11,9 @@ import requests
 
 from .decorators import check_xor_attrs
 from .decorators import requires_authentication
+from .exceptions import RequiresAuthentication
 
 DEFAULT_TIMEOUT = 10
-
-
-def sign_request(api_secret: str, timestamp: int, method: str, path: str, body: str = "") -> str:
-    """Signs the request payload using the api key secret
-
-    :param api_secret: the api key secret
-    :param timestamp: the unix timestamp of this request e.g. int(time.time()*1000)
-    :param method: Http method - GET, POST, PUT or DELETE
-    :param path: path excluding host name, e.g. '/api/v1/withdraw'
-    :param body: http request body as a string, optional
-    :return signature hash
-    """
-    body = body if body else ""
-    payload = f"{timestamp}{method.upper()}{path}{body}"
-    message = bytearray(payload, 'utf-8')
-    signature = hmac.new(bytearray(api_secret, 'utf-8'), message, digestmod=hashlib.sha512).hexdigest()
-    return signature
 
 
 def check_timeout(timeout: int) -> int:
@@ -42,20 +27,22 @@ def check_timeout(timeout: int) -> int:
 
 
 class BaseClientABC(metaclass=ABCMeta):
-    DEFAULT_BASE_URL = 'https://api.valr.com'
+    VALR_API_URL = 'https://api.valr.com'
 
     def __init__(self, api_key: str = "", api_secret: str = "", timeout: int = DEFAULT_TIMEOUT,
-                 base_url: str = "") -> None:
+                 base_url: str = "", handle_429_errors: bool = False) -> None:
         """
         :param base_url: base api url
         :param api_key: api key
         :param api_secret: api secret
         :param timeout: http timeout
+        :param handle_429_errors: true if 429 error Retry-After header should be honoured
         """
         self._api_key = api_key
         self._api_secret = api_secret
-        self._base_url = base_url.rstrip('/') if base_url else self.DEFAULT_BASE_URL
+        self._base_url = base_url.rstrip('/') if base_url else self.VALR_API_URL
         self._timeout = check_timeout(timeout)
+        self._handle_429_errors = handle_429_errors
         self._session = requests.Session()
 
     @property
@@ -88,12 +75,46 @@ class BaseClientABC(metaclass=ABCMeta):
 
     @base_url.setter
     def base_url(self, value: str) -> None:
-        self._base_url = value.rstrip('/') if value else self.DEFAULT_BASE_URL
+        self._base_url = value.rstrip('/') if value else self.VALR_API_URL
+
+    @property
+    def handle_429_errors(self) -> bool:
+        return self._handle_429_errors
+
+    @handle_429_errors.setter
+    def handle_429_errors(self, value: bool) -> None:
+        self._handle_429_errors = value
 
     @abstractmethod
     def _do(self, method: str, path: str, is_authenticated: bool = False,
             data: Dict = None) -> Union[List, Dict, None]:
         raise NotImplementedError
+
+    def _sign_request(self, timestamp: int, method: str, path: str, body: str = "") -> str:
+        """Signs the request payload using the api key secret
+
+        :param timestamp: the unix timestamp of this request e.g. int(time.time()*1000)
+        :param method: Http method - GET, POST, PUT or DELETE
+        :param path: path excluding host name, e.g. '/api/v1/withdraw'
+        :param body: http request body as a string, optional
+        :return signature hash
+        """
+        body = body if body else ""
+        payload = f"{timestamp}{method.upper()}{path}{body}"
+        message = bytearray(payload, 'utf-8')
+        signature = hmac.new(bytearray(self._api_secret, 'utf-8'), message, digestmod=hashlib.sha512).hexdigest()
+        return signature
+
+    def _get_valr_headers(self, method, path, params):
+        valr_headers = {}
+        if not (self._api_key and self._api_secret):
+            raise RequiresAuthentication("Cannot generate private request without API key/secret.")
+        timestamp = int(time.time() * 1000)
+        valr_headers["X-VALR-API-KEY"] = self._api_key
+        valr_headers["X-VALR-SIGNATURE"] = self._sign_request(timestamp=timestamp, method=method, path=path,
+                                                              body=params)
+        valr_headers["X-VALR-TIMESTAMP"] = str(timestamp)  # str or byte req for request headers
+        return valr_headers
 
 
 class MethodClientABC(BaseClientABC, metaclass=ABCMeta):
