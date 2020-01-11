@@ -59,14 +59,29 @@ To use the project:
 .. code-block:: python
 
     >>> from valr_python import Client
+    >>> from valr_python.exceptions import IncompleteOrderWarning
+    >>>
     >>> c = Client(api_key='api_key', api_secret='api_secret')
+    >>> c.rate_limiting_support = True # honour HTTP 429 "Retry-After" header values
+    >>> limit_order = {
+    ...     "side": "SELL",
+    ...     "quantity": 0.1,
+    ...     "price": 10000,
+    ...     "pair": "BTCZAR",
+    ...     "post_only": True,
+    ... }
     >>> try:
-    ...     res = c.get_deposit_address(currency_code="ETH")
-    ...     print(res)
+    ...    res = c.post_limit_order(**limit_order)
+    ...    order_id = res['id']
+    ...    print(order_id)
+    ... except IncompleteOrderWarning as w:  # HTTP 202 Accepted handling for incomplete orders
+    ...    order_id = w.data['id']
+    ...    print(order_id)
     ... except Exception as e:
-    ...     print(e)
-    ...
-    {"currency": "ETH", "address": "0xA7Fae2Fd50886b962d46FF4280f595A3982aeAa5"}
+    ...    print(e)
+    "558f5e0a-ffd1-46dd-8fae-763d93fa2f25"
+    >>>
+
 
 
 Development

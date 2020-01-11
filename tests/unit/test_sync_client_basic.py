@@ -13,13 +13,13 @@ def test_client_attrs(sync_client):
     sync_client.api_key = 'api_key'
     sync_client.base_url = 'base_url'
     sync_client.timeout = 10
-    sync_client.handle_rate_limiting = True
+    sync_client.rate_limiting_support = True
 
     assert sync_client.api_key == 'api_key'
     assert sync_client.api_secret == 'api_secret'
     assert sync_client.base_url == 'base_url'
     assert sync_client.timeout == 10
-    assert sync_client.handle_rate_limiting is True
+    assert sync_client.rate_limiting_support is True
 
 
 def test_client_do_basic(mock_sync_client, mocker):
@@ -96,7 +96,7 @@ def test_client_do_http_429_handling(mock_sync_client, mocker):
 
     # handle 429s when enabled and validate warning issued
     with pytest.warns(TooManyRequestsWarning):
-        mock_sync_client.handle_rate_limiting = True
+        mock_sync_client.rate_limiting_support = True
         mocker.get('mock://test/', resp_list)
         res = mock_sync_client._do('GET', '/')
         assert res['key'] == 'value'
@@ -104,7 +104,7 @@ def test_client_do_http_429_handling(mock_sync_client, mocker):
 
 @pytest.mark.parametrize('headers', [{}, {"Retry-After": "bogus"}])
 def test_client_do_http_429_api_exception_handling(mock_sync_client, mocker, headers):
-    mock_sync_client.handle_rate_limiting = True
+    mock_sync_client.rate_limiting_support = True
 
     # raise api exception if header not in response
     mocker.get('mock://test/', headers={}, status_code=429)

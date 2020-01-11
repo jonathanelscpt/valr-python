@@ -22,19 +22,19 @@ class BaseClientABC(metaclass=ABCMeta):
     VALR_API_URL = 'https://api.valr.com'
 
     def __init__(self, api_key: str = "", api_secret: str = "", timeout: int = DEFAULT_TIMEOUT, base_url: str = "",
-                 handle_rate_limiting: bool = False) -> None:
+                 rate_limiting_support: bool = False) -> None:
         """
         :param base_url: base api url
         :param api_key: api key
         :param api_secret: api secret
         :param timeout: http timeout
-        :param handle_rate_limiting: true if 429 error Retry-After header should be honoured
+        :param rate_limiting_support: true if 429 error Retry-After header should be honoured
         """
         self._api_key = api_key
         self._api_secret = api_secret
         self._base_url = base_url.rstrip('/') if base_url else self.VALR_API_URL
         self._timeout = self.check_timeout(timeout)
-        self._handle_rate_limiting = handle_rate_limiting
+        self._rate_limiting_support = rate_limiting_support
         self._session = requests.Session()
 
     @property
@@ -70,12 +70,12 @@ class BaseClientABC(metaclass=ABCMeta):
         self._base_url = value.rstrip('/') if value else self.VALR_API_URL
 
     @property
-    def handle_rate_limiting(self) -> bool:
-        return self._handle_rate_limiting
+    def rate_limiting_support(self) -> bool:
+        return self._rate_limiting_support
 
-    @handle_rate_limiting.setter
-    def handle_rate_limiting(self, value: bool) -> None:
-        self._handle_rate_limiting = value
+    @rate_limiting_support.setter
+    def rate_limiting_support(self, value: bool) -> None:
+        self._rate_limiting_support = value
 
     @staticmethod
     def check_timeout(timeout: int) -> int:
