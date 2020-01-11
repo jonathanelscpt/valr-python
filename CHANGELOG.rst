@@ -2,6 +2,15 @@
 Changelog
 =========
 
+
+0.1.5 (2020-01-11)
+------------------
+
+* Added custom warning :code:`IncompleteOrderWarning` on receiving :code:`202 Accepted` response to support
+  custom handling of incomplete orders
+* Added custom warning :code:`TooManyRequestsWarning` during 429 handling
+* Added class flag for enabling or disabling 429 handler
+
 0.1.5 (2020-01-11)
 ------------------
 
