@@ -18,9 +18,9 @@ Overview
     :alt: Travis-CI Build Status
     :target: https://travis-ci.org/jonathanelscpt/valr-python
 
-.. |commits-since| image:: https://img.shields.io/github/commits-since/jonathanelscpt/valr-python/v0.1.5.svg
+.. |commits-since| image:: https://img.shields.io/github/commits-since/jonathanelscpt/valr-python/v0.1.6.svg
     :alt: Commits since latest release
-    :target: https://github.com/jonathanelscpt/valr-python/compare/v0.1.5...master
+    :target: https://github.com/jonathanelscpt/valr-python/compare/v0.1.6...master
 
 .. |codacy| image:: https://api.codacy.com/project/badge/Grade/cb879e2a6be142b88d4e0c2b3a294fb3
     :target: https://www.codacy.com/manual/jonathanelscpt/valr-python?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=jonathanelscpt/valr-python&amp;utm_campaign=Badge_Grade
