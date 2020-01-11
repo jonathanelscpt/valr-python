@@ -3,7 +3,7 @@ Changelog
 =========
 
 
-0.1.5 (2020-01-11)
+0.1.6 (2020-01-11)
 ------------------
 
 * Added custom warning :code:`IncompleteOrderWarning` on receiving :code:`202 Accepted` response to support
