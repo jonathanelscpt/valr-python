@@ -11,38 +11,29 @@ import requests
 
 from .decorators import check_xor_attrs
 from .decorators import requires_authentication
+from .exceptions import APIError
 from .exceptions import RequiresAuthentication
 
 DEFAULT_TIMEOUT = 10
 
 
-# def check_timeout(timeout: int) -> int:
-#     """Check if request is non-zero and set to 10 if zero.
-#
-#     :param timeout: HTTP _timeout
-#     """
-#     if timeout == 0:
-#         return DEFAULT_TIMEOUT
-#     return timeout
-
-
 class BaseClientABC(metaclass=ABCMeta):
     VALR_API_URL = 'https://api.valr.com'
 
-    def __init__(self, api_key: str = "", api_secret: str = "", timeout: int = DEFAULT_TIMEOUT,
-                 base_url: str = "", handle_429_errors: bool = False) -> None:
+    def __init__(self, api_key: str = "", api_secret: str = "", timeout: int = DEFAULT_TIMEOUT, base_url: str = "",
+                 handle_rate_limiting: bool = False) -> None:
         """
         :param base_url: base api url
         :param api_key: api key
         :param api_secret: api secret
         :param timeout: http timeout
-        :param handle_429_errors: true if 429 error Retry-After header should be honoured
+        :param handle_rate_limiting: true if 429 error Retry-After header should be honoured
         """
         self._api_key = api_key
         self._api_secret = api_secret
         self._base_url = base_url.rstrip('/') if base_url else self.VALR_API_URL
         self._timeout = self.check_timeout(timeout)
-        self._handle_429_errors = handle_429_errors
+        self._handle_rate_limiting = handle_rate_limiting
         self._session = requests.Session()
 
     @property
@@ -78,12 +69,12 @@ class BaseClientABC(metaclass=ABCMeta):
         self._base_url = value.rstrip('/') if value else self.VALR_API_URL
 
     @property
-    def handle_429_errors(self) -> bool:
-        return self._handle_429_errors
+    def handle_rate_limiting(self) -> bool:
+        return self._handle_rate_limiting
 
-    @handle_429_errors.setter
-    def handle_429_errors(self, value: bool) -> None:
-        self._handle_429_errors = value
+    @handle_rate_limiting.setter
+    def handle_rate_limiting(self, value: bool) -> None:
+        self._handle_rate_limiting = value
 
     @staticmethod
     def check_timeout(timeout: int) -> int:
@@ -94,6 +85,11 @@ class BaseClientABC(metaclass=ABCMeta):
         if timeout == 0:
             return DEFAULT_TIMEOUT
         return timeout
+
+    @staticmethod
+    def _raise_for_api_error(e):
+        if 'code' in e and 'message' in e:
+            raise APIError(e['code'], e['message'])
 
     @abstractmethod
     def _do(self, method: str, path: str, is_authenticated: bool = False,
@@ -611,7 +607,6 @@ class MethodClientABC(BaseClientABC, metaclass=ABCMeta):
         if customer_order_id:
             data["customerOrderId"] = customer_order_id
         return self._do('POST', f'/v1/orders/limit', data=data, is_authenticated=True)
-    # TODO - check 202 Accepted
 
     @requires_authentication
     @check_xor_attrs("base_amount", "quote_amount")
@@ -684,7 +679,6 @@ class MethodClientABC(BaseClientABC, metaclass=ABCMeta):
         if customer_order_id:
             data["customerOrderId"] = customer_order_id
         return self._do('POST', f'/v1/orders/market', data=data, is_authenticated=True)
-    # TODO - check 202 Accepted
 
     @requires_authentication
     @check_xor_attrs("order_id", "customer_order_id")
@@ -847,4 +841,3 @@ class MethodClientABC(BaseClientABC, metaclass=ABCMeta):
         else:
             data["customerOrderId"] = customer_order_id
         return self._do('DELETE', f'/v1/orders/order', data=data, is_authenticated=True)
-    # TODO - check 202 Accepted

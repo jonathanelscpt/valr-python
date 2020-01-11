@@ -3,6 +3,7 @@ from requests.exceptions import HTTPError
 
 from valr_python.exceptions import APIError
 from valr_python.exceptions import APIException
+from valr_python.exceptions import IncompleteOrderWarning
 from valr_python.exceptions import RequiresAuthentication
 from valr_python.exceptions import TooManyRequestsWarning
 
@@ -12,13 +13,13 @@ def test_client_attrs(sync_client):
     sync_client.api_key = 'api_key'
     sync_client.base_url = 'base_url'
     sync_client.timeout = 10
-    sync_client.handle_429_errors = True
+    sync_client.handle_rate_limiting = True
 
     assert sync_client.api_key == 'api_key'
     assert sync_client.api_secret == 'api_secret'
     assert sync_client.base_url == 'base_url'
     assert sync_client.timeout == 10
-    assert sync_client.handle_429_errors is True
+    assert sync_client.handle_rate_limiting is True
 
 
 def test_client_do_basic(mock_sync_client, mocker):
@@ -61,6 +62,19 @@ def test_client_do_200_ok_error_handling(mock_sync_client, mocker):
     assert e.value.message == 'api error message'
 
 
+def test_client_do_warn_on_202_response(mock_sync_client, mocker):
+    _202_resp = {"id": "order-id"}
+    mocker.get('mock://test/', json=_202_resp, status_code=202)
+    with pytest.warns(IncompleteOrderWarning):
+        resp = mock_sync_client._do('GET', '/')
+        assert resp == _202_resp
+    # check that warning bundles expected response data
+    try:
+        mock_sync_client._do('GET', '/')
+    except IncompleteOrderWarning as w:
+        assert w.data == _202_resp
+
+
 def test_client_do_invalid_response_handling(mock_sync_client, mocker):
     mocker.get('mock://test/', text='invalid json response')
     with pytest.raises(APIException):
@@ -86,7 +100,7 @@ def test_client_do_http_429_handling(mock_sync_client, mocker):
 
     # handle 429s when enabled and validate warning issued
     with pytest.warns(TooManyRequestsWarning):
-        mock_sync_client.handle_429_errors = True
+        mock_sync_client.handle_rate_limiting = True
         mocker.get('mock://test/', resp_list)
         res = mock_sync_client._do('GET', '/')
         assert res['key'] == 'value'
@@ -94,7 +108,7 @@ def test_client_do_http_429_handling(mock_sync_client, mocker):
 
 @pytest.mark.parametrize('headers', [{}, {"Retry-After": "bogus"}])
 def test_client_do_http_429_api_exception_handling(mock_sync_client, mocker, headers):
-    mock_sync_client.handle_429_errors = True
+    mock_sync_client.handle_rate_limiting = True
 
     # raise api exception if header not in response
     mocker.get('mock://test/', headers={}, status_code=429)
