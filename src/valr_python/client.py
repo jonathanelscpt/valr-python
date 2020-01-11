@@ -31,7 +31,7 @@ class Client(MethodClientABC):
 
     def _do(self, method: str, path: str, is_authenticated: bool = False,
             data: Dict = None) -> Union[List, Dict, None]:
-        """Performs an API request and returns the response.
+        """Executes API request and returns the response.
 
         Includes HTTP 429 handling by honouring VALR's 429 Retry-After header cool-down.
 

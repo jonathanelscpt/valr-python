@@ -16,14 +16,14 @@ from .exceptions import RequiresAuthentication
 DEFAULT_TIMEOUT = 10
 
 
-def check_timeout(timeout: int) -> int:
-    """Check if request is non-zero and set to 10 if zero.
-
-    :param timeout: HTTP _timeout
-    """
-    if timeout == 0:
-        return DEFAULT_TIMEOUT
-    return timeout
+# def check_timeout(timeout: int) -> int:
+#     """Check if request is non-zero and set to 10 if zero.
+#
+#     :param timeout: HTTP _timeout
+#     """
+#     if timeout == 0:
+#         return DEFAULT_TIMEOUT
+#     return timeout
 
 
 class BaseClientABC(metaclass=ABCMeta):
@@ -41,7 +41,7 @@ class BaseClientABC(metaclass=ABCMeta):
         self._api_key = api_key
         self._api_secret = api_secret
         self._base_url = base_url.rstrip('/') if base_url else self.VALR_API_URL
-        self._timeout = check_timeout(timeout)
+        self._timeout = self.check_timeout(timeout)
         self._handle_429_errors = handle_429_errors
         self._session = requests.Session()
 
@@ -67,7 +67,7 @@ class BaseClientABC(metaclass=ABCMeta):
 
     @timeout.setter
     def timeout(self, value: int) -> None:
-        self._timeout = check_timeout(value)
+        self._timeout = self.check_timeout(value)
 
     @property
     def base_url(self) -> str:
@@ -85,9 +85,27 @@ class BaseClientABC(metaclass=ABCMeta):
     def handle_429_errors(self, value: bool) -> None:
         self._handle_429_errors = value
 
+    @staticmethod
+    def check_timeout(timeout: int) -> int:
+        """Check if request is non-zero and set to 10 if zero.
+
+        :param timeout: HTTP _timeout
+        """
+        if timeout == 0:
+            return DEFAULT_TIMEOUT
+        return timeout
+
     @abstractmethod
     def _do(self, method: str, path: str, is_authenticated: bool = False,
             data: Dict = None) -> Union[List, Dict, None]:
+        """Executes API request and returns the response.
+
+        :param method: HTTP method (e.g. GET, POST, DELETE, etc.
+        :param path: REST API endpoint path
+        :param is_authenticated: bool flag if request should be authentication
+        :param data: params dict for request body
+        :return: requests response
+        """
         raise NotImplementedError
 
     def _sign_request(self, timestamp: int, method: str, path: str, body: str = "") -> str:
@@ -105,7 +123,14 @@ class BaseClientABC(metaclass=ABCMeta):
         signature = hmac.new(bytearray(self._api_secret, 'utf-8'), message, digestmod=hashlib.sha512).hexdigest()
         return signature
 
-    def _get_valr_headers(self, method, path, params):
+    def _get_valr_headers(self, method: str, path: str, params: Union[str, Dict]) -> Dict:
+        """
+
+        :param method: HTTP method (e.g. GET, POST, DELETE, etc.
+        :param path: REST API endpoint path
+        :param params: params dict for request body
+        :return: header dict
+        """
         valr_headers = {}
         if not (self._api_key and self._api_secret):
             raise RequiresAuthentication("Cannot generate private request without API key/secret.")
