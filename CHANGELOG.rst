@@ -3,6 +3,12 @@ Changelog
 =========
 
 
+0.1.7 (2020-01-11)
+------------------
+
+* Standardised api attribute naming in Client
+* Updated doctest and readme for more detailed SDK description
+
 0.1.6 (2020-01-11)
 ------------------
 
