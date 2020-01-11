@@ -142,8 +142,8 @@ class BaseClientABC(metaclass=ABCMeta):
 class MethodClientABC(BaseClientABC, metaclass=ABCMeta):
 
     @abstractmethod
-    def _do(self, method: str, path: str, is_authenticated: bool = False,
-            data: Dict = None) -> Optional[Union[List, Dict]]:
+    def _do(self, method: str, path: str, data: Dict = None,
+            is_authenticated: bool = False) -> Optional[Union[List, Dict]]:
         raise NotImplementedError
 
     # Public APIs
