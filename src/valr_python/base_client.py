@@ -89,6 +89,7 @@ class BaseClientABC(metaclass=ABCMeta):
 
     @staticmethod
     def _raise_for_api_error(e):
+        """Raise api responses containing error codes"""
         if 'code' in e and 'message' in e:
             raise APIError(e['code'], e['message'])
 
@@ -121,7 +122,7 @@ class BaseClientABC(metaclass=ABCMeta):
         return signature
 
     def _get_valr_headers(self, method: str, path: str, params: Union[str, Dict]) -> Dict:
-        """
+        """Create signed VALR headers from method, api path and request params
 
         :param method: HTTP method (e.g. GET, POST, DELETE, etc.
         :param path: REST API endpoint path
