@@ -1,17 +1,17 @@
 import pytest
 import requests_mock
 
-from valr_python import Client
+from valr_python import RestClient
 
 
 @pytest.fixture
 def sync_client():
-    return Client()
+    return RestClient()
 
 
 @pytest.fixture
 def sync_client_with_auth():
-    return Client(api_key='api_key', api_secret='api_secret')
+    return RestClient(api_key='api_key', api_secret='api_secret')
 
 
 @pytest.fixture

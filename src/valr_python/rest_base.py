@@ -1,6 +1,3 @@
-import hashlib
-import hmac
-import time
 from abc import ABCMeta
 from abc import abstractmethod
 from decimal import Decimal
@@ -14,7 +11,9 @@ import requests
 from valr_python.decorators import check_xor_attrs
 from valr_python.decorators import requires_authentication
 from valr_python.exceptions import APIError
-from valr_python.exceptions import RequiresAuthentication
+
+__all__ = []
+
 
 DEFAULT_TIMEOUT = 10
 
@@ -106,39 +105,6 @@ class BaseClientABC(metaclass=ABCMeta):
         :return: requests response
         """
         raise NotImplementedError
-
-    def _sign_request(self, timestamp: int, method: str, path: str, body: str = "") -> str:
-        """Signs the request payload using the api key secret
-
-        :param timestamp: the unix timestamp of this request e.g. int(time.time()*1000)
-        :param method: Http method - GET, POST, PUT or DELETE
-        :param path: path excluding host name, e.g. '/api/v1/withdraw'
-        :param body: http request body as a string, optional
-        :return signature hash
-        """
-        body = body if body else ""
-        payload = f"{timestamp}{method.upper()}{path}{body}"
-        message = bytearray(payload, 'utf-8')
-        signature = hmac.new(bytearray(self._api_secret, 'utf-8'), message, digestmod=hashlib.sha512).hexdigest()
-        return signature
-
-    def _get_valr_headers(self, method: str, path: str, params: Union[str, Dict]) -> Dict:
-        """Create signed VALR headers from method, api path and request params
-
-        :param method: HTTP method (e.g. GET, POST, DELETE, etc.
-        :param path: REST API endpoint path
-        :param params: params dict for request body
-        :return: header dict
-        """
-        valr_headers = {}
-        if not (self._api_key and self._api_secret):
-            raise RequiresAuthentication("Cannot generate private request without API key/secret.")
-        timestamp = int(time.time() * 1000)
-        valr_headers["X-VALR-API-KEY"] = self._api_key
-        valr_headers["X-VALR-SIGNATURE"] = self._sign_request(timestamp=timestamp, method=method, path=path,
-                                                              body=params)
-        valr_headers["X-VALR-TIMESTAMP"] = str(timestamp)  # str or byte req for request headers
-        return valr_headers
 
 
 class MethodClientABC(BaseClientABC, metaclass=ABCMeta):

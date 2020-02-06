@@ -1,5 +1,5 @@
-from enum import auto
 from enum import Enum
+from enum import auto
 
 
 class WebSocketType(Enum):

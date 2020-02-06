@@ -1,7 +1,7 @@
 import pytest
 
-from valr_python.base_client import BaseClientABC
 from valr_python.exceptions import RequiresAuthentication
+from valr_python.rest_base import BaseClientABC
 
 BASE_URL = BaseClientABC.VALR_API_URL
 

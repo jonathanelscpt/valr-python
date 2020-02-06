@@ -12,7 +12,8 @@ Overview
     * - package
       - | |commits-since|
     * - quality
-      - | |codacy|
+      - | |codecov|
+        | |codacy|
 
 .. |travis| image:: https://api.travis-ci.org/jonathanelscpt/valr-python.svg?branch=master
     :alt: Travis-CI Build Status
@@ -24,6 +25,12 @@ Overview
 
 .. |codacy| image:: https://api.codacy.com/project/badge/Grade/cb879e2a6be142b88d4e0c2b3a294fb3
     :target: https://www.codacy.com/manual/jonathanelscpt/valr-python?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=jonathanelscpt/valr-python&amp;utm_campaign=Badge_Grade
+    :alt: Codacy Code Quality Status
+
+.. |codecov| image:: https://codecov.io/gh/jonathanelscpt/valr-python/branch/master/graph/badge.svg
+    :target: https://codecov.io/gh/jonathanelscpt/valr-python
+    :alt: Coverage Status
+
 
 .. end-badges
 
@@ -50,11 +57,11 @@ Authentication
 Authenticating to the VALR API requires a valid API Key from the `VALR exchange <https://www.valr.com/>`_.
 
 
-Documentation
-=============
+REST API Client
+===============
 
 
-To use the project:
+To use the REST sync client:
 
 .. code-block:: python
 

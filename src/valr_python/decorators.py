@@ -1,7 +1,7 @@
 from functools import wraps
 from typing import List
 
-from .exceptions import RequiresAuthentication
+from valr_python.exceptions import RequiresAuthentication
 
 
 def requires_authentication(func):

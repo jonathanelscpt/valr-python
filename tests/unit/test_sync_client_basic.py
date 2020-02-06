@@ -2,9 +2,9 @@ import pytest
 from requests.exceptions import HTTPError
 
 from valr_python.exceptions import APIError
-from valr_python.exceptions import APIException
 from valr_python.exceptions import IncompleteOrderWarning
 from valr_python.exceptions import RequiresAuthentication
+from valr_python.exceptions import RESTAPIException
 from valr_python.exceptions import TooManyRequestsWarning
 
 
@@ -73,7 +73,7 @@ def test_client_do_warn_on_202_response(mock_sync_client, mocker):
 
 def test_client_do_invalid_response_handling(mock_sync_client, mocker):
     mocker.get('mock://test/', text='invalid json response')
-    with pytest.raises(APIException):
+    with pytest.raises(RESTAPIException):
         mock_sync_client._do('GET', '/')
 
 
@@ -108,10 +108,10 @@ def test_client_do_http_429_api_exception_handling(mock_sync_client, mocker, hea
 
     # raise api exception if header not in response
     mocker.get('mock://test/', headers={}, status_code=429)
-    with pytest.raises(APIException):
+    with pytest.raises(RESTAPIException):
         mock_sync_client._do('GET', '/')
 
     # raise api exception if "Retry-After" parsing fails
     mocker.get('mock://test/', headers={"Retry-After": "bogus"}, status_code=429)
-    with pytest.raises(APIException):
+    with pytest.raises(RESTAPIException):
         mock_sync_client._do('GET', '/')

@@ -41,14 +41,13 @@ setup(
     include_package_data=True,
     zip_safe=False,
     classifiers=[
-        'Development Status :: 2 - Pre-Alpha',
+        'Development Status :: 3 - Alpha',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: MIT License',
         'Operating System :: Unix',
         'Operating System :: Microsoft :: Windows',
         'Programming Language :: Python',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
         'Topic :: Utilities',
@@ -58,16 +57,13 @@ setup(
         'Issue Tracker': 'https://github.com/jonathanelscpt/valr-python/issues',
     },
     keywords=[
-        'VALR', 'REST', 'API', 'Bitcoin', 'Ethereum',
+        'VALR', 'REST', 'API', 'Bitcoin', 'Ethereum', 'stream', 'websocket',
     ],
-    python_requires='>=3.6',
+    python_requires='>=3.7',
     install_requires=[
-       'requests',
+       'requests', 'websockets', 'asyncio'
     ],
     tests_require=['pytest', 'pytest-cov', 'requests_mock'],
     extras_require={
-        # eg:
-        #   'rst': ['docutils>=0.11'],
-        #   ':python_version=="2.6"': ['argparse'],
     },
 )

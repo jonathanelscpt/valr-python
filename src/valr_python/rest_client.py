@@ -9,20 +9,21 @@ from typing import Union
 
 from requests.exceptions import HTTPError
 
-from .base_client import MethodClientABC
-from .exceptions import RESTAPIException
-from .exceptions import IncompleteOrderWarning
-from .exceptions import TooManyRequestsWarning
+from valr_python.exceptions import IncompleteOrderWarning
+from valr_python.exceptions import RESTAPIException
+from valr_python.exceptions import TooManyRequestsWarning
+from valr_python.rest_base import MethodClientABC
+from valr_python.utils import _get_valr_headers
 
 
-class RESTClient(MethodClientABC):
+class RestClient(MethodClientABC):
     """
-        Python SDK for the VALR API.
+        Synchronous Python SDK for the VALR REST API.
 
-            >>> from valr_python import RESTClient
+            >>> from valr_python import RestClient
             >>> from valr_python.exceptions import IncompleteOrderWarning
             >>>
-            >>> c = RESTClient(api_key='api_key', api_secret='api_secret')
+            >>> c = RestClient(api_key='api_key', api_secret='api_secret')
             >>> c.rate_limiting_support = True # honour HTTP 429 "Retry-After" header values
             >>> limit_order = {
             ...     "side": "SELL",
@@ -60,7 +61,8 @@ class RESTClient(MethodClientABC):
         headers = {}
         url = self._base_url + '/' + path.lstrip('/')
         if is_authenticated:
-            headers.update(self._get_valr_headers(method=method, path=path, params=params))
+            headers.update(_get_valr_headers(api_key=self.api_key, api_secret=self.api_secret, method=method,
+                                             path=path, params=params))
         if data:
             headers["Content-Type"] = "application/json"
         args = dict(timeout=self._timeout, params=params, headers=headers)
@@ -85,8 +87,8 @@ class RESTClient(MethodClientABC):
                         return self._do(method=method, path=path, is_authenticated=is_authenticated, data=data)
                     except (KeyError, ValueError):
                         raise RESTAPIException(res.status_code,
-                                           f'valr-python: HTTP 429 processing failed. '
-                                           f'HTTP ({res.status_code}): {res.headers}')
+                                               f'valr-python: HTTP 429 processing failed. '
+                                               f'HTTP ({res.status_code}): {res.headers}')
                 else:
                     # avoid JSONDecodeError - VALR 429 response has html body
                     raise he
@@ -96,4 +98,4 @@ class RESTClient(MethodClientABC):
             raise he
         except JSONDecodeError as jde:
             raise RESTAPIException(res.status_code,
-                               f'valr-python: unknown API error. HTTP ({res.status_code}): {jde.msg}')
+                                   f'valr-python: unknown API error. HTTP ({res.status_code}): {jde.msg}')
