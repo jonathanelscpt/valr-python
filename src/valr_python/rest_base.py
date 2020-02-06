@@ -14,22 +14,14 @@ from valr_python.exceptions import APIError
 
 __all__ = []
 
-
 DEFAULT_TIMEOUT = 10
 
 
 class BaseClientABC(metaclass=ABCMeta):
     VALR_API_URL = 'https://api.valr.com'
 
-    def __init__(self, api_key: str = "", api_secret: str = "", timeout: int = DEFAULT_TIMEOUT, base_url: str = "",
+    def __init__(self, api_key: str = "", api_secret: str = "", timeout: int = 10, base_url: str = "",
                  rate_limiting_support: bool = False) -> None:
-        """
-        :param base_url: base api url
-        :param api_key: api key
-        :param api_secret: api secret
-        :param timeout: http timeout
-        :param rate_limiting_support: true if 429 error Retry-After header should be honoured
-        """
         self._api_key = api_key
         self._api_secret = api_secret
         self._base_url = base_url.rstrip('/') if base_url else self.VALR_API_URL
@@ -79,10 +71,7 @@ class BaseClientABC(metaclass=ABCMeta):
 
     @staticmethod
     def check_timeout(timeout: int) -> int:
-        """Check if request is non-zero and set to 10 if zero.
-
-        :param timeout: HTTP _timeout
-        """
+        """Check if request is non-zero and set to 10 if zero. """
         if timeout == 0:
             return DEFAULT_TIMEOUT
         return timeout
@@ -96,14 +85,7 @@ class BaseClientABC(metaclass=ABCMeta):
     @abstractmethod
     def _do(self, method: str, path: str, data: Dict = None,
             is_authenticated: bool = False) -> Optional[Union[List, Dict]]:
-        """Executes API request and returns the response.
-
-        :param method: HTTP method (e.g. GET, POST, DELETE, etc.
-        :param path: REST API endpoint path
-        :param is_authenticated: bool flag if request should be authentication
-        :param data: params dict for request body
-        :return: requests response
-        """
+        """Executes API request and returns the response."""
         raise NotImplementedError
 
 
@@ -112,14 +94,7 @@ class MethodClientABC(BaseClientABC, metaclass=ABCMeta):
     @abstractmethod
     def _do(self, method: str, path: str, data: Dict = None,
             is_authenticated: bool = False) -> Optional[Union[List, Dict]]:
-        """Executes API request and returns the response.
-
-        :param method: HTTP method (e.g. GET, POST, DELETE, etc.
-        :param path: REST API endpoint path
-        :param is_authenticated: bool flag if request should be authentication
-        :param data: params dict for request body
-        :return: requests response
-        """
+        """Executes API request and returns the response."""
         raise NotImplementedError
 
     # Public APIs
@@ -133,10 +108,6 @@ class MethodClientABC(BaseClientABC, metaclass=ABCMeta):
 
         Please note: This is not an authenticated call.
         More constrained rate-limiting rules will apply than when you use :currencyPair/orderbook route.
-
-        :param currency_pair: Currency pair for which you want to query the order book.
-        Supported currency pairs: BTCZAR, ETHZAR
-        :return public order book for currency pair
         """
         return self._do('GET', f'/v1/public/{currency_pair}/orderbook')
 
@@ -144,8 +115,6 @@ class MethodClientABC(BaseClientABC, metaclass=ABCMeta):
         """Makes a call to GET https://api.valr.com/v1/public/currencies
 
         Get a list of currencies supported by VALR.
-
-        :return: list of currencies
         """
         return self._do('GET', '/v1/public/currencies')
 
@@ -153,8 +122,6 @@ class MethodClientABC(BaseClientABC, metaclass=ABCMeta):
         """Makes a call to GET https://api.valr.com/v1/public/pairs
 
         Get a list of all the currency pairs supported by VALR.
-
-        :return: list of currency pairs
         """
         return self._do('GET', '/v1/public/pairs')
 
@@ -176,11 +143,6 @@ class MethodClientABC(BaseClientABC, metaclass=ABCMeta):
 
         An array of order types is returned. You can only place an order that is listed in this
         array for this currency pair.
-
-
-        :param currency_pair: Specify the currency pair for which you want to query the order types.
-        Examples: BTCZAR, ETHZAR, ADABTC, ADAETH etc.
-        :return: list of order types
         """
         if currency_pair:
             return self._do('GET', f'/v1/public/{currency_pair}/ordertypes')
@@ -199,10 +161,6 @@ class MethodClientABC(BaseClientABC, metaclass=ABCMeta):
         Makes a call to GET https://api.valr.com/v1/public/:currencyPair/marketsummary
 
         Get the market summary for a given currency pair.
-
-        :param currency_pair: Specify the currency pair for which you want to query the order types.
-        Examples: BTCZAR, ETHZAR, ADABTC, ADAETH etc.
-        :return: summary of market orders
         """
         if currency_pair:
             return self._do('GET', f'/v1/public/{currency_pair}/marketsummary')
@@ -213,8 +171,6 @@ class MethodClientABC(BaseClientABC, metaclass=ABCMeta):
         """Makes a call to GET https://api.valr.com/v1/public/time
 
         Get the server time. Please note: The server time is returned in seconds.
-
-        :return: server time
         """
         return self._do('GET', '/v1/public/time')
 
@@ -225,8 +181,6 @@ class MethodClientABC(BaseClientABC, metaclass=ABCMeta):
         """Makes a call to GET https://api.valr.com/v1/account/balances
 
         Returns the list of all wallets with their respective balances.
-
-        :return: list of wallets with balances
         """
         return self._do('GET', '/v1/account/balances', is_authenticated=True)
 
@@ -235,11 +189,6 @@ class MethodClientABC(BaseClientABC, metaclass=ABCMeta):
         """Makes a call to GET https://api.valr.com/v1/account/transactionhistory?skip=0&limit=100
 
         Transaction history for your account. Note: This API supports pagination.
-
-        :param limit: Limit the number of items returned
-        :param skip: Skip number of items from the list
-
-        :return: list of historical transactions
         """
         return self._do('GET', f'/v1/account/transactionhistory?skip={skip}&limit={limit}', is_authenticated=True)
 
@@ -249,11 +198,6 @@ class MethodClientABC(BaseClientABC, metaclass=ABCMeta):
 
         Get the last 100 recent trades for a given currency pair for your account.
         You can limit the number of trades returned by specifying the `limit` parameter.
-
-        :param currency_pair: Specify the currency pair for which you want to query the trade history.
-        Examples: BTCZAR, ETHZAR
-        :param limit: Limit the number of items returned
-        :return: list of historical trades
         """
         return self._do('GET', f'/v1/account/{currency_pair}/tradehistory?limit={limit}', is_authenticated=True)
 
@@ -264,9 +208,6 @@ class MethodClientABC(BaseClientABC, metaclass=ABCMeta):
         """Makes a call to GET https://api.valr.com/v1/wallet/crypto/:currencyCode/deposit/address
 
         Returns the default deposit address associated with currency specified in the path variable `:currencyCode`.
-
-        :param currency_code: Currently, the allowed values here are BTC and ETH.
-        :return: currency wallet address
         """
         return self._do('GET', f'/v1/wallet/crypto/{currency_code}/deposit/address', is_authenticated=True)
 
@@ -276,10 +217,6 @@ class MethodClientABC(BaseClientABC, metaclass=ABCMeta):
 
         Get all the information about withdrawing a given currency from your VALR account.
         That will include withdrawal costs, minimum withdrawal amount etc.
-
-        :param currency_code: This is the currency code of the currency you want withdrawal information about.
-        Examples: BTC, ETH, XRP, ADA, etc.
-        :return: currency withdrawal information
         """
         return self._do('GET', f'/v1/wallet/crypto/{currency_code}/withdraw', is_authenticated=True)
 
@@ -292,14 +229,6 @@ class MethodClientABC(BaseClientABC, metaclass=ABCMeta):
 
         The request body for XRP, XMR, XEM, XLM will accept an optional field called "paymentReference".
         Max length for paymentReference is 256.
-
-        :param currency_code: This is the currency code of the currency you want withdrawal information about.
-        Examples: BTC, ETH, XRP, ADA, etc.
-        :param amount: Amount of currency
-        :param address: This is the currency code of the currency you want withdrawal information about.
-        Examples: BTC, ETH, XRP, ADA, etc.
-        :param payment_reference: optional field called "paymentReference". Max length for paymentReference is 256.
-        :return: withdrawal id
         """
         data = {"amount": amount, "address": address}
         if payment_reference:
@@ -311,12 +240,6 @@ class MethodClientABC(BaseClientABC, metaclass=ABCMeta):
         """Makes a call to GET https://api.valr.com/v1/wallet/crypto/:currencyCode/withdraw/:withdrawId
 
         Check the status of a withdrawal.
-
-        :param currency_code: This is the currency code for the currency you have withdrawn.
-        Examples: BTC, ETH, XRP, ADA, etc.
-        :param withdraw_id: The unique id that represents your withdrawal request.
-        This is provided as a response to the API call to withdraw.
-        :return: withdrawal status information
         """
         return self._do('GET', f'/v1/wallet/crypto/{currency_code}/withdraw/{withdraw_id}', is_authenticated=True)
 
@@ -325,12 +248,6 @@ class MethodClientABC(BaseClientABC, metaclass=ABCMeta):
         """Makes a call to GET https://api.valr.com/v1/wallet/crypto/:currencyCode/deposit/history?skip=0&limit=10
 
         Get the Deposit History records for a given currency.
-
-        :param currency_code: This is the currency code for the currency you have withdrawn.
-        Examples: BTC, ETH, XRP, ADA, etc.
-        :param skip: Skip number of items from the list.
-        :param limit: Limit the number of items returned.
-        :return: list of historical deposits
         """
         return self._do('GET', f'/v1/wallet/crypto/{currency_code}/deposit/history?skip={skip}&limit={limit}',
                         is_authenticated=True)
@@ -340,12 +257,6 @@ class MethodClientABC(BaseClientABC, metaclass=ABCMeta):
         """Makes a call to GET https://api.valr.com/v1/wallet/crypto/:currencyCode/withdraw/history?skip=0&limit=10
 
         Get Withdrawal History records for a given currency.
-
-        :param currency_code: This is the currency code for the currency you have withdrawn.
-        Examples: BTC, ETH, XRP, ADA, etc.
-        :param skip: Skip number of items from the list.
-        :param limit: Limit the number of items returned.
-        :return: list of historical withdrawals
         """
         return self._do('GET', f'/v1/wallet/crypto/{currency_code}/withdraw/history?skip={skip}&limit={limit}',
                         is_authenticated=True)
@@ -369,11 +280,6 @@ class MethodClientABC(BaseClientABC, metaclass=ABCMeta):
         """Makes a call to POST https://api.valr.com/v1/wallet/fiat/:currencyCode/withdraw
 
         Withdraw your ZAR funds into one of your linked bank accounts.
-
-        :param currency_code: The currency code for the fiat currency. Supported: ZAR.
-        :param linked_bank_account_id: bank account for withdrawal
-        :param amount: withdrawal amount
-        :return: withdrawal transaction id
         """
         data = {"linkedBankAccountId": linked_bank_account_id, "amount": amount}
         return self._do('POST', f'/v1/wallet/fiat/{currency_code}/withdraw', data=data, is_authenticated=True)
@@ -387,10 +293,6 @@ class MethodClientABC(BaseClientABC, metaclass=ABCMeta):
         Returns a list of the top 20 bids and asks in the order book.
         Ask orders are sorted by price ascending.
         Bid orders are sorted by price descending. Orders of the same price are aggregated.
-
-        :param currency_pair: Currency pair for which you want to query the order book.
-        Supported currency pairs: BTCZAR.
-        :return: order book list of asks and list of bids
         """
         return self._do('GET', f'/v1/marketdata/{currency_pair}/orderbook', is_authenticated=True)
 
@@ -401,10 +303,6 @@ class MethodClientABC(BaseClientABC, metaclass=ABCMeta):
         Returns a list of all the bids and asks in the order book.
         Ask orders are sorted by price ascending.
         Bid orders are sorted by price descending. Orders of the same price are NOT aggregated..
-
-        :param currency_pair: Currency pair for which you want to query the order book.
-        Supported currency pairs: BTCZAR.
-        :return: full order book list of asks and list of bids
         """
         return self._do('GET', f'/v1/marketdata/{currency_pair}/orderbook/full', is_authenticated=True)
 
@@ -414,11 +312,6 @@ class MethodClientABC(BaseClientABC, metaclass=ABCMeta):
 
         Get the last 100 recent trades for a given currency pair.
         You can limit the number of trades returned by specifying the limit parameter.
-
-        :param currency_pair: Currency pair for which you want to query the order book.
-        Supported currency pairs: BTCZAR.
-        :param limit: Limit the number of items returned.
-        :return: list of historical trades
         """
         return self._do('GET', f'/v1/marketdata/{currency_pair}/tradehistory?limit={limit}', is_authenticated=True)
 
@@ -446,13 +339,6 @@ class MethodClientABC(BaseClientABC, metaclass=ABCMeta):
 
          - If you want to sell ETH for BTC, payInCurrency will be ETH and the side would be SELL
          - If you want to buy ETH with BTC, payInCurrency will be BTC and the side would be BUY
-
-        :param currency_pair: Currency pair to get a simple quote for.
-        Any currency pair that supports the "simple" order type, can be specified.
-        :param pay_in_currency: crypto currency
-        :param pay_amount: crypto currency pay amount
-        :param side: side is SELL or BUY
-        :return: simple quote data
         """
         data = {"payInCurrency": pay_in_currency, "payAmount": pay_amount, "side": side}
         return self._do('POST', f'/v1/simple/{currency_pair}/quote', data=data, is_authenticated=True)
@@ -479,13 +365,6 @@ class MethodClientABC(BaseClientABC, metaclass=ABCMeta):
 
          - If you want to sell ETH for BTC, payInCurrency will be ETH and the side would be SELL
          - If you want to buy ETH with BTC, payInCurrency will be BTC and the side would be BUY
-
-        :param currency_pair: Currency pair to get a simple quote for.
-        Any currency pair that supports the "simple" order type, can be specified.
-        :param pay_in_currency: crypto currency
-        :param pay_amount: crypto currency pay amount
-        :param side: side is SELL or BUY
-        :return: simple order data
         """
         data = {"payInCurrency": pay_in_currency, "payAmount": pay_amount, "side": side}
         return self._do('POST', f'/v1/simple/{currency_pair}/order', data=data, is_authenticated=True)
@@ -495,11 +374,6 @@ class MethodClientABC(BaseClientABC, metaclass=ABCMeta):
         """Makes a call to GET https://api.valr.com/v1/simple/:currencyPair/order/:orderId
 
         Get the status of a Simple Buy/Sell order.
-
-        :param currency_pair: Currency pair you want a simple buy/sell quote for.
-        Supported currency pairs: BTCZAR.
-        :param order_id: Order Id of the order for which you are querying the status.
-        :return: simple order data
         """
         return self._do('GET', f'/v1/simple/{currency_pair}/order/{order_id}', is_authenticated=True)
 
@@ -564,14 +438,6 @@ class MethodClientABC(BaseClientABC, metaclass=ABCMeta):
         - If you set postOnly flag to true, but your order would have matched immediately.
         - Self trading: If your order matches against your own order (on the other side).
         - Insufficient liquidity: If you're placing an order and there isn't liquidity to fulfill the order.
-
-        :param side: BUY or SELL
-        :param quantity: Base amount in BTC
-        :param price: Price per coin in ZAR
-        :param pair: BTCZAR etc.
-        :param post_only: true or false
-        :param customer_order_id: Numeric value.
-        :return: order id
         """
         data = {
             "side": side,
@@ -637,13 +503,6 @@ class MethodClientABC(BaseClientABC, metaclass=ABCMeta):
         - If you set postOnly flag to true, but your order would have matched immediately.
         - Self trading: If your order matches against your own order (on the other side).
         - Insufficient liquidity: If you're placing an order and there isn't liquidity to fulfill the order.
-
-        :param side: BUY or SELL
-        :param base_amount: Base amount for SELL (in BTC)
-        :param quote_amount: Quote amount for BUY (in ZAR).
-        :param pair: BTCZAR etc.
-        :param customer_order_id: Numeric value.
-        :return: order id
         """
         data = {
             "side": side,
@@ -678,12 +537,6 @@ class MethodClientABC(BaseClientABC, metaclass=ABCMeta):
         This API returns the status of an order that was placed on the Exchange queried using customerOrderId.
         The customer can specify a customerOrderId while placing an order on the Exchange.
         Use this API to query the order status using that customerOrderId.
-
-
-        :param currency_pair: Currency pair
-        :param order_id: Order Id provided by VALR
-        :param customer_order_id: Order Id provided by customer when creating the order
-        :return: order status data
         """
         if customer_order_id:
             return self._do('GET', f'/v1/orders/{currency_pair}/customerorderid/{customer_order_id}',
@@ -699,8 +552,6 @@ class MethodClientABC(BaseClientABC, metaclass=ABCMeta):
 
         A customerOrderId field will be returned in the response for all those orders
         that were created with a customerOrderId field.
-
-        :return: list of open orders
         """
         return self._do('GET', f'/v1/orders/open', is_authenticated=True)
 
@@ -709,10 +560,6 @@ class MethodClientABC(BaseClientABC, metaclass=ABCMeta):
         """Makes a call to GET https://api.valr.com/v1/orders/history?skip=0&limit=2
 
         Get historical orders placed by you.
-
-        :param skip: Skip number of items from the list.
-        :param limit: Limit the number of items returned.
-        :return: list of historical orders
         """
         return self._do('GET', f'/v1/orders/history?skip={skip}&limit={limit}', is_authenticated=True)
 
@@ -740,11 +587,6 @@ class MethodClientABC(BaseClientABC, metaclass=ABCMeta):
 
         When this happens, you can get a more detailed summary about this order using this call.
         Orders that are not completed are invalid for this request.
-
-
-        :param order_id: Order Id provided by VALR
-        :param customer_order_id: Order Id provided by the customer
-        :return: order summary
         """
         if customer_order_id:
             return self._do('GET', f'/v1/orders/history/summary/customerorderid/{customer_order_id}',
@@ -768,11 +610,6 @@ class MethodClientABC(BaseClientABC, metaclass=ABCMeta):
 
         Get a detailed history of an order's statuses. This call returns an array of "Order Status" objects.
         The latest and most up-to-date status of this order is the zeroth element in the array.
-
-
-        :param order_id: Order Id provided by VALR
-        :param customer_order_id: Order Id provided by the customer
-        :return: detailed order history
         """
         if customer_order_id:
             return self._do('GET', f'/v1/orders/history/detail/customerorderid/{customer_order_id}',
@@ -806,11 +643,6 @@ class MethodClientABC(BaseClientABC, metaclass=ABCMeta):
         NOTE: When you receive this response with an id, it does not always mean that the order has been placed.
         When the response is 202 Accepted, you can either use the Order Status REST API
         or use WebSocket API to receive status update about this order.
-
-        :param pair: Currency pair
-        :param order_id: Order Id provided by VALR
-        :param customer_order_id: Order Id provided by the customer
-        :return: None
         """
         data = {"pair": pair}
         if order_id:
