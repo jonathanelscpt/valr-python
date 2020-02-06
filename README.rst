@@ -128,36 +128,47 @@ To use the WebSocket API client:
 
     >>> import asyncio
     >>> from typing import Dict
+    >>> from pprint import pprint
     >>> from valr_python import WebSocketClient
     >>> from valr_python.enum import TradeEvent
     >>> from valr_python.enum import WebSocketType
     >>>
-    >>> def print_hook(data: Dict):
-    ...    print(data)
+    >>> def pretty_hook(data: Dict):
+    ...    pprint(data)
     >>>
     >>> c = WebSocketClient(api_key='api_key', api_secret='api_secret', currency_pairs=['BTCZAR'],
-                            ws_type=WebSocketType.TRADE.name,
-                            trade_subscriptions=[TradeEvent.AGGREGATED_ORDERBOOK_UPDATE.name,
-                                                 TradeEvent.MARKET_SUMMARY_UPDATE.name],
-                            hooks={TradeEvent.AGGREGATED_ORDERBOOK_UPDATE.name : print_hook,
-                                   TradeEvent.MARKET_SUMMARY_UPDATE.name : print_hook})
+    ...                     ws_type=WebSocketType.TRADE.name,
+    ...                     trade_subscriptions=[TradeEvent.MARKET_SUMMARY_UPDATE.name],
+    ...                     hooks={TradeEvent.MARKET_SUMMARY_UPDATE.name : pretty_hook})
     >>> loop = asyncio.get_event_loop()
     >>> loop.run_until_complete(c.run())
+    {'currencyPairSymbol': 'BTCZAR',
+     'data': {'askPrice': '151601',
+              'baseVolume': '314.7631144',
+              'bidPrice': '151600',
+              'changeFromPrevious': '2.14',
+              'created': '2020-02-06T22:47:03.129Z',
+              'currencyPairSymbol': 'BTCZAR',
+              'highPrice': '152440',
+              'lastTradedPrice': '151600',
+              'lowPrice': '146765',
+              'previousClosePrice': '148410',
+              'quoteVolume': '47167382.04552981'},
+     'type': 'MARKET_SUMMARY_UPDATE'}
 
 
 This library leverages :code:`websockets` and :code:`asyncio` and is thus a coroutine-based API client.  Both of
-VALR's **Account WebSocket connection** and **Trade WebSocket connection** API endpoints are supported.  The SDK fully
-supports VALR subscription methods for both endpoints.  Please see the
-`VALR API documentation <https://docs.valr.com/>`_ for more information.
+VALR's **Account WebSocket connection** and **Trade WebSocket connection** API endpoints are included.  Furtheremore,
+the SDK fully supports VALR's subscription methods for both :code:`Account` and :code:`Trade` endpoints.
+Please see the `VALR API documentation <https://docs.valr.com/>`_ for further information.
 
-For each subscription, a hook must be provided
-to process the WS responses.  Failing to do so raises a :code:`HookNotFoundError` exception.  For ease of use,
-several :code:`Enum` classes have been implemented (as showcased above) for client instantiation and hook consumption
-of API responses. However, client input is accepted in :code:`str` format.
+For each subscription, a hook must be provided to process the WS responses.  Failing to do so raises
+a :code:`HookNotFoundError` exception.  For ease of use, several :code:`Enum` classes have been implemented
+(as showcased above) for client instantiation and hook consumption of API responses. However, client input is
+accepted in :code:`str` format.
 
-Although not completely minimalistic,
-do note that the SDK is implemented as a thin client and implementing parsing of API response streams is left to
-the user.
+Although not completely minimalistic, do note that the SDK is implemented as a thin client and implementing parsing
+of API response streams is left to the user.
 
 
 Development

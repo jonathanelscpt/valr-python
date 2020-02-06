@@ -31,6 +31,40 @@ class WebSocketClient:
     communication session between a client and a server. With this API, you can send messages to a server and
     receive event-driven responses without having to poll the server for a reply.
 
+
+    Example Usage
+    ~~~~~~~~~~~~~
+
+    >>> import asyncio
+    >>> from typing import Dict
+    >>> from pprint import pprint
+    >>> from valr_python import WebSocketClient
+    >>> from valr_python.enum import TradeEvent
+    >>> from valr_python.enum import WebSocketType
+    >>>
+    >>> def pretty_hook(data: Dict):
+    ...    pprint(data)
+    >>>
+    >>> c = WebSocketClient(api_key='api_key', api_secret='api_secret', currency_pairs=['BTCZAR'],
+    ...                     ws_type=WebSocketType.TRADE.name,
+    ...                     trade_subscriptions=[TradeEvent.MARKET_SUMMARY_UPDATE.name],
+    ...                     hooks={TradeEvent.MARKET_SUMMARY_UPDATE.name : pretty_hook})
+    >>> loop = asyncio.get_event_loop()
+    >>> loop.run_until_complete(c.run())
+    {'currencyPairSymbol': 'BTCZAR',
+     'data': {'askPrice': '151601',
+              'baseVolume': '314.7631144',
+              'bidPrice': '151600',
+              'changeFromPrevious': '2.14',
+              'created': '2020-02-06T22:47:03.129Z',
+              'currencyPairSymbol': 'BTCZAR',
+              'highPrice': '152440',
+              'lastTradedPrice': '151600',
+              'lowPrice': '146765',
+              'previousClosePrice': '148410',
+              'quoteVolume': '47167382.04552981'},
+     'type': 'MARKET_SUMMARY_UPDATE'}
+
     Connection
     ~~~~~~~~~~
 

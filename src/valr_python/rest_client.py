@@ -52,12 +52,6 @@ class RestClient(MethodClientABC):
         """Executes API request and returns the response.
 
         Includes HTTP 429 handling by honouring VALR's 429 Retry-After header cool-down.
-
-        :param method: HTTP method (e.g. GET, POST, DELETE, etc.
-        :param path: REST API endpoint path
-        :param is_authenticated: True if api call requires authentication and signature hashing
-        :param data: request data
-        :return: HTTP REST API response from VALR
         """
         params = json.loads(json.dumps(data))
         headers = {}
