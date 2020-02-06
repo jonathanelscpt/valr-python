@@ -7,12 +7,9 @@ env:
     - SEGFAULT_SIGNALS=all
 matrix:
   include:
-    - python: '3.6'
+    - python: '3.7'
       env:
         - TOXENV=check
-    - env:
-        - TOXENV=py36
-      python: '3.6'
     - env:
         - TOXENV=py37
       python: '3.7'
@@ -38,6 +35,8 @@ script:
 after_failure:
   - more .tox/log/* | cat
   - more .tox/*/log/* | cat
+after_success:
+    - bash <(curl -s https://codecov.io/bash)
 deploy:
   provider: pypi
   user: "__token__"

@@ -10,19 +10,19 @@ from typing import Union
 from requests.exceptions import HTTPError
 
 from .base_client import MethodClientABC
-from .exceptions import APIException
+from .exceptions import RESTAPIException
 from .exceptions import IncompleteOrderWarning
 from .exceptions import TooManyRequestsWarning
 
 
-class Client(MethodClientABC):
+class RESTClient(MethodClientABC):
     """
         Python SDK for the VALR API.
 
-            >>> from valr_python import Client
+            >>> from valr_python import RESTClient
             >>> from valr_python.exceptions import IncompleteOrderWarning
             >>>
-            >>> c = Client(api_key='api_key', api_secret='api_secret')
+            >>> c = RESTClient(api_key='api_key', api_secret='api_secret')
             >>> c.rate_limiting_support = True # honour HTTP 429 "Retry-After" header values
             >>> limit_order = {
             ...     "side": "SELL",
@@ -84,7 +84,7 @@ class Client(MethodClientABC):
                         sleep(retry_after)
                         return self._do(method=method, path=path, is_authenticated=is_authenticated, data=data)
                     except (KeyError, ValueError):
-                        raise APIException(res.status_code,
+                        raise RESTAPIException(res.status_code,
                                            f'valr-python: HTTP 429 processing failed. '
                                            f'HTTP ({res.status_code}): {res.headers}')
                 else:
@@ -95,5 +95,5 @@ class Client(MethodClientABC):
             # bubble HTTP errors that VALR API doesn't report on
             raise he
         except JSONDecodeError as jde:
-            raise APIException(res.status_code,
+            raise RESTAPIException(res.status_code,
                                f'valr-python: unknown API error. HTTP ({res.status_code}): {jde.msg}')

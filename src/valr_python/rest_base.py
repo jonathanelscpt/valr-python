@@ -11,10 +11,10 @@ from typing import Union
 
 import requests
 
-from .decorators import check_xor_attrs
-from .decorators import requires_authentication
-from .exceptions import APIError
-from .exceptions import RequiresAuthentication
+from valr_python.decorators import check_xor_attrs
+from valr_python.decorators import requires_authentication
+from valr_python.exceptions import APIError
+from valr_python.exceptions import RequiresAuthentication
 
 DEFAULT_TIMEOUT = 10
 
