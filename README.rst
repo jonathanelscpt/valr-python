@@ -7,17 +7,35 @@ Overview
 .. list-table::
     :stub-columns: 1
 
-    * - tests
-      - | |travis|
+
     * - package
-      - | |commits-since|
+      - | |version| |wheel| |supported-versions| |supported-implementations|
+        | |commits-since|
     * - quality
       - | |codecov|
         | |codacy|
+    * - tests
+      - | |travis|
 
 .. |travis| image:: https://api.travis-ci.org/jonathanelscpt/valr-python.svg?branch=master
     :alt: Travis-CI Build Status
     :target: https://travis-ci.org/jonathanelscpt/valr-python
+
+.. |version| image:: https://img.shields.io/pypi/v/valr-python.svg
+    :alt: PyPI Package latest release
+    :target: https://pypi.org/project/valr-python
+
+.. |wheel| image:: https://img.shields.io/pypi/wheel/valr-python.svg
+    :alt: PyPI Wheel
+    :target: https://pypi.org/project/valr-python
+
+.. |supported-versions| image:: https://img.shields.io/pypi/pyversions/valr-python.svg
+    :alt: Supported versions
+    :target: https://pypi.org/project/valr-python
+
+.. |supported-implementations| image:: https://img.shields.io/pypi/implementation/valr-python.svg
+    :alt: Supported implementations
+    :target: https://pypi.org/project/valr-python
 
 .. |commits-since| image:: https://img.shields.io/github/commits-since/jonathanelscpt/valr-python/v0.1.7.svg
     :alt: Commits since latest release
