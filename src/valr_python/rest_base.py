@@ -20,7 +20,7 @@ DEFAULT_TIMEOUT = 10
 class BaseClientABC(metaclass=ABCMeta):
     VALR_API_URL = 'https://api.valr.com'
 
-    def __init__(self, api_key: str = "", api_secret: str = "", timeout: int = 10, base_url: str = "",
+    def __init__(self, api_key: str, api_secret: str, timeout: int = 10, base_url: str = "",
                  rate_limiting_support: bool = False) -> None:
         self._api_key = api_key
         self._api_secret = api_secret
