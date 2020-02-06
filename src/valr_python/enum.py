@@ -1,6 +1,8 @@
 from enum import Enum
 from enum import auto
 
+__all__ = ['WebSocketType', 'MessageFeedType', 'TradeEvent', 'AccountEvent', 'OrderStatusType', 'CurrencyPair']
+
 
 class WebSocketType(Enum):
     ACCOUNT = '/ws/account'
@@ -9,8 +11,11 @@ class WebSocketType(Enum):
 
 class MessageFeedType(Enum):
     SUBSCRIBE = auto()
+    SUBSCRIBED = auto()
     AUTHENTICATED = auto()
     UNSUPPORTED = auto()
+    PING = auto()
+    PONG = auto()
 
 
 class TradeEvent(Enum):

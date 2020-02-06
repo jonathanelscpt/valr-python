@@ -15,6 +15,8 @@ from valr_python.exceptions import TooManyRequestsWarning
 from valr_python.rest_base import MethodClientABC
 from valr_python.utils import _get_valr_headers
 
+__all__ = ['RestClient']
+
 
 class RestClient(MethodClientABC):
     """

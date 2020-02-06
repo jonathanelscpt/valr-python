@@ -1,13 +1,18 @@
 import hashlib
 import hmac
 import time
+from typing import Any
 from typing import Dict
+from typing import List
 from typing import Union
 
 from valr_python.enum import WebSocketType
 from valr_python.exceptions import RequiresAuthentication
 
-__all__ = ['_get_valr_headers']
+__all__ = []
+
+
+JSONType = Union[str, int, float, bool, None, Dict[str, Any], List[Any]]
 
 
 def _get_valr_headers(api_key: str, api_secret: str, method: str, path: Union[str, WebSocketType],

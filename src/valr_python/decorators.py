@@ -3,6 +3,8 @@ from typing import List
 
 from valr_python.exceptions import RequiresAuthentication
 
+__all__ = []
+
 
 def requires_authentication(func):
     """Decorator to determine private API calls with require authentication"""
@@ -10,9 +12,7 @@ def requires_authentication(func):
     @wraps(func)
     def inner(self, *args, **kwargs):
         if not (self._api_key and self._api_secret):
-            raise RequiresAuthentication(
-                "cannot generate private request without API key/secret."
-            )
+            raise RequiresAuthentication("cannot generate private request without API key/secret.")
         return func(self, *args, **kwargs)
 
     return inner
@@ -23,11 +23,10 @@ def check_xor_attrs(*xor_args: List[str]):
 
     def xor_decorator(func):
 
-        if len(xor_args) != 2:
-            raise AttributeError("only comparison of two args supported")
-
         @wraps(func)
         def inner(self, *args, **kwargs):
+            if len(xor_args) != 2:
+                raise AttributeError("only comparisons of two args supported")
             has_args = [i in kwargs for i in xor_args]
             if not any(has_args) or all(has_args):
                 raise AttributeError(f"either {xor_args[0]} or {xor_args[1]} must be provided, but not both.")

@@ -33,14 +33,16 @@ def test_requires_authentication_successful(api_key, api_secret):
     assert stub.private_action() is True
 
 
-@pytest.mark.parametrize('attr1, attr2', [(False, False), (True, True), (None, None)])
+@pytest.mark.parametrize('attr1, attr2', [(True, True)])
 def test_check_xor_attrs_failures(attr1, attr2):
     stub = DecoratorStub()
     with pytest.raises(AttributeError):
         stub.xor_function(attr1=attr1, attr2=attr2)
+    with pytest.raises(AttributeError):
+        stub.xor_function()
 
 
-@pytest.mark.parametrize('attr1, attr2', [(True, False), (False, True), (True, None), (None, True)])
+@pytest.mark.parametrize('attr1, attr2', [(True, True)])
 def test_check_xor_attrs_successful(attr1, attr2):
     stub = DecoratorStub()
     assert stub.xor_function(attr1=attr1) is True
