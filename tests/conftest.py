@@ -2,7 +2,8 @@ import pytest
 import requests_mock
 
 from valr_python import RestClient
-
+from valr_python import WebSocketClient
+from valr_python.enum import TradeEvent
 
 @pytest.fixture
 def sync_client():
@@ -21,13 +22,13 @@ def mock_sync_client(sync_client):
 
 
 @pytest.fixture
-def mocker():
+def rest_sync_mocker():
     with requests_mock.Mocker() as m:
         yield m
 
 
 @pytest.fixture
-def mock_resp():
+def rest_sync_mock_resp():
     return {}
 
 

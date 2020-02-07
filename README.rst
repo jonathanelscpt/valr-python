@@ -57,7 +57,7 @@ Overview
 .. end-badges
 
 
-A Python SDK for the VALR cryptocurrency exchange APIs.
+A Python SDK for VALR cryptocurrency exchange APIs.
 
 
 Installation
@@ -76,7 +76,7 @@ You can also install the in-development version with::
 Authentication
 ==============
 
-Authenticating to the VALR API requires a valid API Key from the `VALR exchange <https://www.valr.com/>`_.
+Authenticating to VALR API private resources requires a valid API Key from the `VALR exchange <https://www.valr.com/>`_.
 
 
 Synchronous REST API Client
@@ -109,13 +109,12 @@ To use the **synchronous** REST API client:
     ... except Exception as e:
     ...    print(e)
     "558f5e0a-ffd1-46dd-8fae-763d93fa2f25"
-    >>>
 
 
 Asynchronous REST API Client
 ============================
 
-The **synchronous** REST API client is still in development.  Coming soon!
+The **asynchronous** REST API client is still in development.  *Coming soon!*
 
 
 WebSocket API Client
@@ -158,7 +157,7 @@ To use the WebSocket API client:
 
 
 This library leverages :code:`websockets` and :code:`asyncio` and is thus a coroutine-based API client.  Both of
-VALR's **Account WebSocket connection** and **Trade WebSocket connection** API endpoints are included.  Furtheremore,
+VALR's **Account WebSocket connection** and **Trade WebSocket connection** API endpoints are included.  Furthermore,
 the SDK fully supports VALR's subscription methods for both :code:`Account` and :code:`Trade` endpoints.
 Please see the `VALR API documentation <https://docs.valr.com/>`_ for further information.
 
@@ -167,8 +166,8 @@ a :code:`HookNotFoundError` exception.  For ease of use, several :code:`Enum` cl
 (as showcased above) for client instantiation and hook consumption of API responses. However, client input is
 accepted in :code:`str` format.
 
-Although not completely minimalistic, do note that the SDK is implemented as a thin client and implementing parsing
-of API response streams is left to the user.
+Although not completely minimalistic, please note that the SDK is implemented as a thin client and parsing of API
+streams response is left up to the application user.
 
 
 Development
@@ -199,7 +198,7 @@ Note, to combine the coverage data from all the tox environments run:
 Donate
 ======
 
-If this library has helped you, or if you would like to support future development, donations are most welcome:
+If this library has helped you or if you would like to support future development, donations are most welcome:
 
 ==============  ==========================================
 Cryptocurrency  Address
