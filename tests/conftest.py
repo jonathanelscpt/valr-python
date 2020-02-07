@@ -2,8 +2,7 @@ import pytest
 import requests_mock
 
 from valr_python import RestClient
-from valr_python import WebSocketClient
-from valr_python.enum import TradeEvent
+
 
 @pytest.fixture
 def sync_client():
