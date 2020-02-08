@@ -900,10 +900,9 @@ class WebSocketClient:
         else:
             self._trade_subscriptions = None
 
-    @asyncio.coroutine
     async def run(self):
         """Open an async websocket connection, consume responses and executed mapped hooks.  Async hooks are also
-        supported.  The method relies on teh underlying websockets libraries ping-pong support.  No API-level
+        supported.  The method relies on the underlying 'websockets' libraries ping-pong support.  No API-level
         ping-pong messages are sent to keep the connection alive (not necessary).  Support for custom-handling of
         websockets.exceptions.ConnectionClosed must be handled in the application.
         """
