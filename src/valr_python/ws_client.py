@@ -22,7 +22,7 @@ from valr_python.utils import _get_valr_headers
 __all__ = ['WebSocketClient']
 
 
-def _get_event_type(ws_type: WebSocketType) -> Type[Union[TradeEvent, AccountEvent]]:
+def get_event_type(ws_type: WebSocketType) -> Type[Union[TradeEvent, AccountEvent]]:
     return TradeEvent if ws_type == WebSocketType.TRADE else AccountEvent
 
 
@@ -881,7 +881,7 @@ class WebSocketClient:
         self._api_key = api_key
         self._api_secret = api_secret
         self._ws_type = WebSocketType[ws_type.upper()]
-        self._hooks = {_get_event_type(self._ws_type)[e.upper()]: f for e, f in hooks.items()}
+        self._hooks = {get_event_type(self._ws_type)[e.upper()]: f for e, f in hooks.items()}
         if currency_pairs:
             self._currency_pairs = [CurrencyPair[p.upper()] for p in currency_pairs]
         else:
@@ -916,14 +916,14 @@ class WebSocketClient:
                 try:
                     # ignore auth and subscription response messages
                     if data['type'] not in (MessageFeedType.SUBSCRIBED.name, MessageFeedType.AUTHENTICATED.name):
-                        func = self._hooks[_get_event_type(self._ws_type)[data['type']]]
+                        func = self._hooks[get_event_type(self._ws_type)[data['type']]]
                         # apply hooks to mapped stream events
                         if asyncio.iscoroutinefunction(func):
                             await func(data)
                         else:
                             func(data)
                 except KeyError:
-                    events = [e.name for e in _get_event_type(self._ws_type)]
+                    events = [e.name for e in get_event_type(self._ws_type)]
                     if data['type'] in events:
                         raise HookNotFoundError(f'no hook supplied for {data["type"]} event')
                     raise WebSocketAPIException(f'WebSocket API failed to handle {data["type"]} event: {data}')
