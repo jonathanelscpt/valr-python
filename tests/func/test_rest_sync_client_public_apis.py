@@ -1,6 +1,6 @@
 from valr_python.rest_base import BaseClientABC
 
-BASE_URL = BaseClientABC.VALR_API_URL
+BASE_URL = BaseClientABC._REST_API_URL
 
 
 # Public APIs
