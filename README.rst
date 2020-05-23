@@ -89,13 +89,14 @@ To use the **synchronous** REST API client:
 
     >>> from valr_python import Client
     >>> from valr_python.exceptions import IncompleteOrderWarning
+    >>> from decimal import Decimal
     >>>
     >>> c = Client(api_key='api_key', api_secret='api_secret')
     >>> c.rate_limiting_support = True # honour HTTP 429 "Retry-After" header values
     >>> limit_order = {
     ...     "side": "SELL",
-    ...     "quantity": 0.1,
-    ...     "price": 10000,
+    ...     "quantity": Decimal('0.1'),
+    ...     "price": Decimal('10000'),
     ...     "pair": "BTCZAR",
     ...     "post_only": True,
     ... }
