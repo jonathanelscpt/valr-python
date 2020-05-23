@@ -59,3 +59,4 @@ class OrderStatusType(Enum):
 class CurrencyPair(Enum):
     BTCZAR = auto()
     ETHZAR = auto()
+    XRPZAR = auto()
