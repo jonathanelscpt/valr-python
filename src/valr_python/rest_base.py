@@ -221,7 +221,7 @@ class MethodClientABC(BaseClientABC, metaclass=ABCMeta):
         return self._do('GET', f'/v1/wallet/crypto/{currency_code}/withdraw', is_authenticated=True)
 
     @requires_authentication
-    def post_new_crypto_withdrawal(self, currency_code: str, amount: Decimal, address: str,
+    def post_new_crypto_withdrawal(self, currency_code: str, amount: Union[Decimal, str], address: str,
                                    payment_reference: str = "") -> Dict:
         """Makes a call to POST https://api.valr.com/v1/wallet/crypto/:currencyCode/withdraw
 
@@ -276,7 +276,8 @@ class MethodClientABC(BaseClientABC, metaclass=ABCMeta):
         return self._do('GET', f'/v1/wallet/fiat/{currency_code}/accounts', is_authenticated=True)
 
     @requires_authentication
-    def post_new_fiat_withdrawal(self, currency_code: str, linked_bank_account_id: str, amount: Decimal) -> Dict:
+    def post_new_fiat_withdrawal(self, currency_code: str, linked_bank_account_id: str,
+                                 amount: Union[Decimal, str]) -> Dict:
         """Makes a call to POST https://api.valr.com/v1/wallet/fiat/:currencyCode/withdraw
 
         Withdraw your ZAR funds into one of your linked bank accounts.
@@ -318,7 +319,8 @@ class MethodClientABC(BaseClientABC, metaclass=ABCMeta):
     # Simple Buy/Sell APIs
 
     @requires_authentication
-    def post_simple_quote(self, currency_pair: str, pay_in_currency: str, pay_amount: Decimal, side: str) -> Dict:
+    def post_simple_quote(self, currency_pair: str, pay_in_currency: str, pay_amount: Union[Decimal, str],
+                          side: str) -> Dict:
         """Makes a call to POST https://api.valr.com/v1/simple/:currencyPair/quote
 
         Get a quote to buy or sell instantly using Simple Buy.
@@ -344,7 +346,8 @@ class MethodClientABC(BaseClientABC, metaclass=ABCMeta):
         return self._do('POST', f'/v1/simple/{currency_pair}/quote', data=data, is_authenticated=True)
 
     @requires_authentication
-    def post_simple_order(self, currency_pair: str, pay_in_currency: str, pay_amount: Decimal, side: str) -> Dict:
+    def post_simple_order(self, currency_pair: str, pay_in_currency: str, pay_amount: Union[Decimal, str],
+                          side: str) -> Dict:
         """Makes a call to POST https://api.valr.com/v1/simple/:currencyPair/order
 
         Submit an order to buy or sell instantly using Simple Buy/Sell.
@@ -380,8 +383,8 @@ class MethodClientABC(BaseClientABC, metaclass=ABCMeta):
     # Exchange Buy/Sell APIs
 
     @requires_authentication
-    def post_limit_order(self, side: str, quantity: Decimal, price: Decimal, pair: str, post_only: bool = False,
-                         customer_order_id: str = "") -> Dict:
+    def post_limit_order(self, side: str, quantity: Union[Decimal, str], price: Union[Decimal, str],
+                         pair: str, post_only: bool = False, customer_order_id: str = "") -> Dict:
         """Makes a call to POST https://api.valr.com/v1/orders/limit
 
         Create a new limit order.
@@ -453,8 +456,8 @@ class MethodClientABC(BaseClientABC, metaclass=ABCMeta):
 
     @requires_authentication
     @check_xor_attrs("base_amount", "quote_amount")
-    def post_market_order(self, side: str, pair: str, base_amount: Decimal = None, quote_amount: Decimal = None,
-                          customer_order_id: str = "") -> Dict:
+    def post_market_order(self, side: str, pair: str, base_amount: Optional[Union[Decimal, str]] = None,
+                          quote_amount: Optional[Union[Decimal, str]] = None, customer_order_id: str = "") -> Dict:
         """Makes a call to POST https://api.valr.com/v1/orders/market
 
         Create a new market order.
