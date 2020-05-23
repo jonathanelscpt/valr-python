@@ -1,7 +1,14 @@
 from enum import Enum
 from enum import auto
 
-__all__ = ['WebSocketType', 'MessageFeedType', 'TradeEvent', 'AccountEvent', 'OrderStatusType', 'CurrencyPair']
+__all__ = (
+    'WebSocketType',
+    'MessageFeedType',
+    'TradeEvent',
+    'AccountEvent',
+    'OrderStatusType',
+    'CurrencyPair'
+)
 
 
 class WebSocketType(Enum):

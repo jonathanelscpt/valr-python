@@ -5,23 +5,25 @@ from typing import Any
 from typing import Dict
 from typing import List
 from typing import Union
+import decimal
+import json
 
 from valr_python.enum import WebSocketType
 from valr_python.exceptions import RequiresAuthentication
 
-__all__ = []
 
+__all__ = ()
 
 JSONType = Union[str, int, float, bool, None, Dict[str, Any], List[Any]]
 
 
 def _get_valr_headers(api_key: str, api_secret: str, method: str, path: Union[str, WebSocketType],
-                      params: Union[str, Dict]) -> Dict:
+                      data: str) -> Dict:
     """Create signed VALR headers from method, api path and request params
 
     :param method: HTTP method (e.g. GET, POST, DELETE, etc.
     :param path: REST API endpoint path
-    :param params: params dict for request body
+    :param data: params dict for request body
     :return: header dict
     """
     valr_headers = {}
@@ -30,8 +32,10 @@ def _get_valr_headers(api_key: str, api_secret: str, method: str, path: Union[st
     timestamp = int(time.time() * 1000)
     valr_headers["X-VALR-API-KEY"] = api_key
     valr_headers["X-VALR-SIGNATURE"] = _sign_request(api_secret=api_secret, timestamp=timestamp,
-                                                     method=method, path=path, body=params)
+                                                     method=method, path=path,
+                                                     body=data)
     valr_headers["X-VALR-TIMESTAMP"] = str(timestamp)  # str or byte req for request headers
+
     return valr_headers
 
 
@@ -41,7 +45,7 @@ def _sign_request(api_secret: str, timestamp: int, method: str, path: str, body:
     :param timestamp: the unix timestamp of this request e.g. int(time.time()*1000)
     :param method: Http method - GET, POST, PUT or DELETE
     :param path: path excluding FQDN
-    :param body: http request body as a string, optional
+    :param body: http request body as a JSON string, optional
     :return signature hash
     """
     body = body if body else ""
@@ -49,3 +53,11 @@ def _sign_request(api_secret: str, timestamp: int, method: str, path: str, body:
     message = bytearray(payload, 'utf-8')
     signature = hmac.new(bytearray(api_secret, 'utf-8'), message, digestmod=hashlib.sha512).hexdigest()
     return signature
+
+
+class DecimalEncoder(json.JSONEncoder):
+    """Serialize Decimal obj as str"""
+    def default(self, o):
+        if isinstance(o, decimal.Decimal):
+            return str(o)
+        return super(DecimalEncoder, self).default(o)

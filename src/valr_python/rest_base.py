@@ -12,7 +12,7 @@ from valr_python.decorators import check_xor_attrs
 from valr_python.decorators import requires_authentication
 from valr_python.exceptions import APIError
 
-__all__ = []
+__all__ = ()
 
 DEFAULT_TIMEOUT = 10
 

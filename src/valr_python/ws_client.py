@@ -19,7 +19,7 @@ from valr_python.exceptions import WebSocketAPIException
 from valr_python.utils import JSONType
 from valr_python.utils import _get_valr_headers
 
-__all__ = ['WebSocketClient']
+__all__ = ('WebSocketClient',)
 
 
 def get_event_type(ws_type: WebSocketType) -> Type[Union[TradeEvent, AccountEvent]]:
@@ -907,7 +907,7 @@ class WebSocketClient:
         websockets.exceptions.ConnectionClosed must be handled in the application.
         """
         headers = _get_valr_headers(api_key=self._api_key, api_secret=self._api_secret, method='GET',
-                                    path=self._ws_type.value, params='')
+                                    path=self._ws_type.value, data='')
         async with websockets.connect(self._uri, ssl=True, extra_headers=headers) as ws:
             if self._ws_type == WebSocketType.TRADE:
                 await ws.send(self.get_subscribe_data(self._currency_pairs, self._trade_subscriptions))

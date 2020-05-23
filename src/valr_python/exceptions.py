@@ -1,7 +1,12 @@
-__all__ = [
-    'APIError', 'RESTAPIException', 'RequiresAuthentication', 'TooManyRequestsWarning', 'WebSocketAPIException',
-    'IncompleteOrderWarning', 'HookNotFoundError'
-]
+__all__ = (
+    'APIError',
+    'RESTAPIException',
+    'RequiresAuthentication',
+    'TooManyRequestsWarning',
+    'WebSocketAPIException',
+    'IncompleteOrderWarning',
+    'HookNotFoundError'
+)
 
 
 class APIError(Exception):

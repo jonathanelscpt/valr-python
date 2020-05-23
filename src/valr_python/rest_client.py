@@ -14,18 +14,19 @@ from valr_python.exceptions import RESTAPIException
 from valr_python.exceptions import TooManyRequestsWarning
 from valr_python.rest_base import MethodClientABC
 from valr_python.utils import _get_valr_headers
+from valr_python.utils import DecimalEncoder
 
-__all__ = ['RestClient']
+__all__ = ('Client',)
 
 
-class RestClient(MethodClientABC):
+class Client(MethodClientABC):
     """
         Synchronous Python SDK for the VALR REST API.
 
-            >>> from valr_python import RestClient
+            >>> from valr_python import Client
             >>> from valr_python.exceptions import IncompleteOrderWarning
             >>>
-            >>> c = RestClient(api_key='api_key', api_secret='api_secret')
+            >>> c = Client(api_key='api_key', api_secret='api_secret')
             >>> c.rate_limiting_support = True # honour HTTP 429 "Retry-After" header values
             >>> limit_order = {
             ...     "side": "SELL",
@@ -47,21 +48,21 @@ class RestClient(MethodClientABC):
             >>>
         """
 
-    def _do(self, method: str, path: str, data: Dict = None,
+    def _do(self, method: str, path: str, data: Optional[Dict] = None,
             is_authenticated: bool = False) -> Optional[Union[List, Dict]]:
         """Executes API request and returns the response.
 
         Includes HTTP 429 handling by honouring VALR's 429 Retry-After header cool-down.
         """
-        params = json.loads(json.dumps(data))
         headers = {}
-        url = self._base_url + '/' + path.lstrip('/')
+        if data:
+            data = json.dumps(data, cls=DecimalEncoder)  # serialize decimals as str
+            headers["Content-Type"] = "application/json"
         if is_authenticated:
             headers.update(_get_valr_headers(api_key=self.api_key, api_secret=self.api_secret, method=method,
-                                             path=path, params=params))
-        if data:
-            headers["Content-Type"] = "application/json"
-        args = dict(timeout=self._timeout, params=params, headers=headers)
+                                             path=path, data=data))
+        url = self._base_url + '/' + path.lstrip('/')
+        args = dict(timeout=self._timeout, data=data, headers=headers)
         res = self._session.request(method, url, **args)
 
         try:
@@ -73,6 +74,7 @@ class RestClient(MethodClientABC):
                 warnings.warn(IncompleteOrderWarning(data=e, message="Order processing incomplete"))
             return e
         except HTTPError as he:
+            print(he)
             if res.status_code == 429:
                 if self._rate_limiting_support:
                     try:

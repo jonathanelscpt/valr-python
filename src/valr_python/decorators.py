@@ -3,7 +3,7 @@ from typing import List
 
 from valr_python.exceptions import RequiresAuthentication
 
-__all__ = []
+__all__ = ()
 
 
 def requires_authentication(func):
