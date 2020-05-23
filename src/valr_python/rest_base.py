@@ -449,7 +449,7 @@ class MethodClientABC(BaseClientABC, metaclass=ABCMeta):
             data["postOnly"] = post_only
         if customer_order_id:
             data["customerOrderId"] = customer_order_id
-        return self._do('POST', f'/v1/orders/limit', data=data, is_authenticated=True)
+        return self._do('POST', '/v1/orders/limit', data=data, is_authenticated=True)
 
     @requires_authentication
     @check_xor_attrs("base_amount", "quote_amount")
@@ -514,7 +514,7 @@ class MethodClientABC(BaseClientABC, metaclass=ABCMeta):
             data["quoteAmount"] = quote_amount
         if customer_order_id:
             data["customerOrderId"] = customer_order_id
-        return self._do('POST', f'/v1/orders/market', data=data, is_authenticated=True)
+        return self._do('POST', '/v1/orders/market', data=data, is_authenticated=True)
 
     @requires_authentication
     @check_xor_attrs("order_id", "customer_order_id")
@@ -553,7 +553,7 @@ class MethodClientABC(BaseClientABC, metaclass=ABCMeta):
         A customerOrderId field will be returned in the response for all those orders
         that were created with a customerOrderId field.
         """
-        return self._do('GET', f'/v1/orders/open', is_authenticated=True)
+        return self._do('GET', '/v1/orders/open', is_authenticated=True)
 
     @requires_authentication
     def get_order_history(self, skip: int = 0, limit: int = 2) -> List[Dict]:
@@ -649,4 +649,4 @@ class MethodClientABC(BaseClientABC, metaclass=ABCMeta):
             data["orderId"] = order_id
         else:
             data["customerOrderId"] = customer_order_id
-        return self._do('DELETE', f'/v1/orders/order', data=data, is_authenticated=True)
+        return self._do('DELETE', '/v1/orders/order', data=data, is_authenticated=True)

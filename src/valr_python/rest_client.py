@@ -13,8 +13,8 @@ from valr_python.exceptions import IncompleteOrderWarning
 from valr_python.exceptions import RESTAPIException
 from valr_python.exceptions import TooManyRequestsWarning
 from valr_python.rest_base import MethodClientABC
-from valr_python.utils import _get_valr_headers
 from valr_python.utils import DecimalEncoder
+from valr_python.utils import _get_valr_headers
 
 __all__ = ('Client',)
 
