@@ -7,8 +7,15 @@ __all__ = (
     'TradeEvent',
     'AccountEvent',
     'OrderStatusType',
-    'CurrencyPair'
+    'TransactionType',
+    'CurrencyPair',
 )
+
+
+class NameStrEnum(Enum):
+
+    def __str__(self):
+        return str(self.name)
 
 
 class WebSocketType(Enum):
@@ -16,7 +23,7 @@ class WebSocketType(Enum):
     TRADE = '/ws/trade'
 
 
-class MessageFeedType(Enum):
+class MessageFeedType(NameStrEnum):
     SUBSCRIBE = auto()
     SUBSCRIBED = auto()
     AUTHENTICATED = auto()
@@ -25,14 +32,14 @@ class MessageFeedType(Enum):
     PONG = auto()
 
 
-class TradeEvent(Enum):
+class TradeEvent(NameStrEnum):
     AGGREGATED_ORDERBOOK_UPDATE = auto()
     MARKET_SUMMARY_UPDATE = auto()
     NEW_TRADE_BUCKET = auto()
     NEW_TRADE = auto()
 
 
-class AccountEvent(Enum):
+class AccountEvent(NameStrEnum):
     NEW_ACCOUNT_HISTORY_RECORD = auto()
     BALANCE_UPDATE = auto()
     NEW_ACCOUNT_TRADE = auto()
@@ -45,18 +52,37 @@ class AccountEvent(Enum):
     SEND_STATUS_UPDATE = auto()
 
 
-class OrderStatusType(Enum):
-    PLACED = "Placed"
-    FAILED = "Failed"
-    CANCELLED = "Cancelled"
-    FILLED = "Filled"
-    PARTIALLY_FILLED = "Partially Filled"
-    INSTANT_ORDER_BALANCE_RESERVE_FAILED = "Instant Order Balance Reserve Failed"
-    INSTANT_ORDER_BALANCE_RESERVED = "Instant Order Balance Reserved"
-    INSTANT_ORDER_COMPLETED = "Instant Order Completed"
+class OrderStatusType(NameStrEnum):
+    PLACED = auto()
+    FAILED = auto()
+    CANCELLED = auto()
+    FILLED = auto()
+    PARTIALLY_FILLED = auto()
+    INSTANT_ORDER_BALANCE_RESERVE_FAILED = auto()
+    INSTANT_ORDER_BALANCE_RESERVED = auto()
+    INSTANT_ORDER_COMPLETED = auto()
 
 
-class CurrencyPair(Enum):
+class TransactionType(NameStrEnum):
+    LIMIT_BUY = auto()
+    LIMIT_SELL = auto()
+    MARKET_BUY = auto()
+    MARKET_SELL = auto()
+    SIMPLE_BUY = auto()
+    SIMPLE_SELL = auto()
+    MAKER_REWARD = auto()
+    BLOCKCHAIN_RECEIVE = auto()
+    BLOCKCHAIN_SEND = auto()
+    FIAT_DEPOSIT = auto()
+    FIAT_WITHDRAWAL = auto()
+    REFERRAL_REBATE = auto()
+    REFERRAL_REWARD = auto()
+    PROMOTIONAL_REBATE = auto()
+    INTERNAL_TRANSFER = auto()
+    FIAT_WITHDRAWAL_REVERSAL = auto()
+
+
+class CurrencyPair(NameStrEnum):
     BTCZAR = auto()
     ETHZAR = auto()
     XRPZAR = auto()

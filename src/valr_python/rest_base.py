@@ -185,12 +185,28 @@ class MethodClientABC(BaseClientABC, metaclass=ABCMeta):
         return self._do('GET', '/v1/account/balances', is_authenticated=True)
 
     @requires_authentication
-    def get_transaction_history(self, skip: int = 0, limit: int = 100) -> List[Dict]:
+    def get_transaction_history(self, skip: int = 0, limit: int = 100,
+                                transaction_types: Optional[Union[List[str], str]] = None,
+                                beforeId: Optional[str] = None, currency: Optional[str] = None,
+                                startTime: Optional[str] = None, endTime: Optional[str] = None) -> List[Dict]:
         """Makes a call to GET https://api.valr.com/v1/account/transactionhistory?skip=0&limit=100
 
         Transaction history for your account. Note: This API supports pagination.
         """
-        return self._do('GET', f'/v1/account/transactionhistory?skip={skip}&limit={limit}', is_authenticated=True)
+        if transaction_types and isinstance(transaction_types, list):
+            transaction_types = ','.join(transaction_types)
+        url = f'/v1/account/transactionhistory?skip={skip}&limit={limit}'
+        opts = {
+            'transaction_types': transaction_types,
+            'currency': currency,
+            'startTime': startTime,
+            'endTime': endTime,
+            'beforeId': beforeId
+        }
+        for k, v in opts.items():
+            if v:
+                url += f'&{k}={v}'
+        return self._do('GET', url, is_authenticated=True)
 
     @requires_authentication
     def get_trade_history_for_currency_pair(self, currency_pair: str, limit: int = 10) -> List[Dict]:
