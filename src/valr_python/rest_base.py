@@ -10,6 +10,9 @@ import requests
 
 from valr_python.decorators import check_xor_attrs
 from valr_python.decorators import requires_authentication
+from valr_python.enum import CurrencyPair
+from valr_python.enum import Side
+from valr_python.enum import TransactionType
 from valr_python.exceptions import APIError
 
 __all__ = ()
@@ -99,7 +102,7 @@ class MethodClientABC(BaseClientABC, metaclass=ABCMeta):
 
     # Public APIs
 
-    def get_order_book_public(self, currency_pair: str) -> Dict[str, List]:
+    def get_order_book_public(self, currency_pair: Union[str, CurrencyPair]) -> Dict[str, List]:
         """Makes a call to GET https://api.valr.com/v1/public/:currencyPair/orderbook
 
         Returns a list of the top 20 bids and asks in the order book.
@@ -125,7 +128,7 @@ class MethodClientABC(BaseClientABC, metaclass=ABCMeta):
         """
         return self._do('GET', '/v1/public/pairs')
 
-    def get_order_types(self, currency_pair: str = "") -> Union[List[Dict], List[str]]:
+    def get_order_types(self, currency_pair: Union[str, CurrencyPair] = "") -> Union[List[Dict], List[str]]:
         """Makes a call to GET https://api.valr.com/v1/public/ordertypes
 
         Get all the order types supported for all currency pairs.
@@ -149,7 +152,7 @@ class MethodClientABC(BaseClientABC, metaclass=ABCMeta):
         else:
             return self._do('GET', '/v1/public/ordertypes')
 
-    def get_market_summary(self, currency_pair: str = "") -> Union[List[Dict], Dict]:
+    def get_market_summary(self, currency_pair: Union[str, CurrencyPair] = "") -> Union[List[Dict], Dict]:
         """Makes a call to GET https://api.valr.com/v1/public/marketsummary
 
         Get the market summary for all supported currency pairs.
@@ -186,7 +189,7 @@ class MethodClientABC(BaseClientABC, metaclass=ABCMeta):
 
     @requires_authentication
     def get_transaction_history(self, skip: int = 0, limit: int = 100,
-                                transaction_types: Optional[Union[List[str], str]] = None,
+                                transaction_types: Optional[Union[List[Union[str, TransactionType]], str, TransactionType]] = None,  # noqa
                                 beforeId: Optional[str] = None, currency: Optional[str] = None,
                                 startTime: Optional[str] = None, endTime: Optional[str] = None) -> List[Dict]:
         """Makes a call to GET https://api.valr.com/v1/account/transactionhistory?skip=0&limit=100
@@ -209,7 +212,8 @@ class MethodClientABC(BaseClientABC, metaclass=ABCMeta):
         return self._do('GET', url, is_authenticated=True)
 
     @requires_authentication
-    def get_trade_history_for_currency_pair(self, currency_pair: str, limit: int = 10) -> List[Dict]:
+    def get_trade_history_for_currency_pair(self, currency_pair: Union[str, CurrencyPair],
+                                            limit: int = 10) -> List[Dict]:
         """Makes a call to GET https://api.valr.com/v1/account/:currencyPair/tradehistory?limit=10
 
         Get the last 100 recent trades for a given currency pair for your account.
@@ -237,8 +241,8 @@ class MethodClientABC(BaseClientABC, metaclass=ABCMeta):
         return self._do('GET', f'/v1/wallet/crypto/{currency_code}/withdraw', is_authenticated=True)
 
     @requires_authentication
-    def post_new_crypto_withdrawal(self, currency_code: str, amount: Union[Decimal, str], address: str,
-                                   payment_reference: str = "") -> Dict:
+    def post_new_crypto_withdrawal(self, currency_code: str, amount: Union[Decimal, str],
+                                   address: str, payment_reference: str = "") -> Dict:
         """Makes a call to POST https://api.valr.com/v1/wallet/crypto/:currencyCode/withdraw
 
         Withdraw cryptocurrency funds to an address.
@@ -304,7 +308,7 @@ class MethodClientABC(BaseClientABC, metaclass=ABCMeta):
     # Market Data APIs
 
     @requires_authentication
-    def get_order_book(self, currency_pair: str) -> Dict[str, List]:
+    def get_order_book(self, currency_pair: Union[str, CurrencyPair]) -> Dict[str, List]:
         """Makes a call to GET https://api.valr.com/v1/marketdata/:currencyPair/orderbook
 
         Returns a list of the top 20 bids and asks in the order book.
@@ -314,7 +318,7 @@ class MethodClientABC(BaseClientABC, metaclass=ABCMeta):
         return self._do('GET', f'/v1/marketdata/{currency_pair}/orderbook', is_authenticated=True)
 
     @requires_authentication
-    def get_order_book_full(self, currency_pair: str) -> Dict[str, List]:
+    def get_order_book_full(self, currency_pair: Union[str, CurrencyPair]) -> Dict[str, List]:
         """Makes a call to GET https://api.valr.com/v1/marketdata/:currencyPair/orderbook/full
 
         Returns a list of all the bids and asks in the order book.
@@ -324,7 +328,7 @@ class MethodClientABC(BaseClientABC, metaclass=ABCMeta):
         return self._do('GET', f'/v1/marketdata/{currency_pair}/orderbook/full', is_authenticated=True)
 
     @requires_authentication
-    def get_market_data_trade_history(self, currency_pair: str, limit: int = 10) -> List[Dict]:
+    def get_market_data_trade_history(self, currency_pair: Union[str, CurrencyPair], limit: int = 10) -> List[Dict]:
         """Makes a call to GET https://api.valr.com/v1/marketdata/:currencyPair/tradehistory?limit=10
 
         Get the last 100 recent trades for a given currency pair.
@@ -335,8 +339,8 @@ class MethodClientABC(BaseClientABC, metaclass=ABCMeta):
     # Simple Buy/Sell APIs
 
     @requires_authentication
-    def post_simple_quote(self, currency_pair: str, pay_in_currency: str, pay_amount: Union[Decimal, str],
-                          side: str) -> Dict:
+    def post_simple_quote(self, currency_pair: Union[str, CurrencyPair], pay_in_currency: str,
+                          pay_amount: Union[Decimal, str], side: Union[str, Side]) -> Dict:
         """Makes a call to POST https://api.valr.com/v1/simple/:currencyPair/quote
 
         Get a quote to buy or sell instantly using Simple Buy.
@@ -362,8 +366,8 @@ class MethodClientABC(BaseClientABC, metaclass=ABCMeta):
         return self._do('POST', f'/v1/simple/{currency_pair}/quote', data=data, is_authenticated=True)
 
     @requires_authentication
-    def post_simple_order(self, currency_pair: str, pay_in_currency: str, pay_amount: Union[Decimal, str],
-                          side: str) -> Dict:
+    def post_simple_order(self, currency_pair: Union[str, CurrencyPair], pay_in_currency: str,
+                          pay_amount: Union[Decimal, str], side: Union[str, Side]) -> Dict:
         """Makes a call to POST https://api.valr.com/v1/simple/:currencyPair/order
 
         Submit an order to buy or sell instantly using Simple Buy/Sell.
@@ -389,7 +393,7 @@ class MethodClientABC(BaseClientABC, metaclass=ABCMeta):
         return self._do('POST', f'/v1/simple/{currency_pair}/order', data=data, is_authenticated=True)
 
     @requires_authentication
-    def get_simple_order_status(self, currency_pair: str, order_id: str) -> Dict:
+    def get_simple_order_status(self, currency_pair: Union[str, CurrencyPair], order_id: str) -> Dict:
         """Makes a call to GET https://api.valr.com/v1/simple/:currencyPair/order/:orderId
 
         Get the status of a Simple Buy/Sell order.
@@ -399,7 +403,7 @@ class MethodClientABC(BaseClientABC, metaclass=ABCMeta):
     # Exchange Buy/Sell APIs
 
     @requires_authentication
-    def post_limit_order(self, side: str, quantity: Union[Decimal, str], price: Union[Decimal, str],
+    def post_limit_order(self, side: Union[str, Side], quantity: Union[Decimal, str], price: Union[Decimal, str],
                          pair: str, post_only: bool = False, customer_order_id: str = "") -> Dict:
         """Makes a call to POST https://api.valr.com/v1/orders/limit
 
@@ -472,7 +476,8 @@ class MethodClientABC(BaseClientABC, metaclass=ABCMeta):
 
     @requires_authentication
     @check_xor_attrs("base_amount", "quote_amount")
-    def post_market_order(self, side: str, pair: str, base_amount: Optional[Union[Decimal, str]] = None,
+    def post_market_order(self, side: Union[str, Side], pair: Union[str, CurrencyPair],
+                          base_amount: Optional[Union[Decimal, str]] = None,
                           quote_amount: Optional[Union[Decimal, str]] = None, customer_order_id: str = "") -> Dict:
         """Makes a call to POST https://api.valr.com/v1/orders/market
 
@@ -537,7 +542,8 @@ class MethodClientABC(BaseClientABC, metaclass=ABCMeta):
 
     @requires_authentication
     @check_xor_attrs("order_id", "customer_order_id")
-    def get_order_status(self, currency_pair: str, order_id: str = "", customer_order_id: str = "") -> Dict:
+    def get_order_status(self, currency_pair: Union[str, CurrencyPair], order_id: str = "",
+                         customer_order_id: str = "") -> Dict:
         """Makes a call to GET https://api.valr.com/v1/orders/:currencyPair/orderid/:orderId
 
         This API returns the status of an order that was placed on the Exchange queried using the id provided by VALR.
@@ -638,7 +644,7 @@ class MethodClientABC(BaseClientABC, metaclass=ABCMeta):
 
     @requires_authentication
     @check_xor_attrs("order_id", "customer_order_id")
-    def delete_order(self, pair, order_id: str = "", customer_order_id: str = "") -> None:
+    def delete_order(self, pair: Union[str, CurrencyPair], order_id: str = "", customer_order_id: str = "") -> None:
         """Makes a call to DELETE https://api.valr.com/v1/orders/order
 
         Cancel an open order.

@@ -18,6 +18,11 @@ class NameStrEnum(Enum):
         return str(self.name)
 
 
+class Side(NameStrEnum):
+    SELL = auto()
+    BUY = auto()
+
+
 class WebSocketType(Enum):
     ACCOUNT = '/ws/account'
     TRADE = '/ws/trade'
