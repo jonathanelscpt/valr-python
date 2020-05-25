@@ -3,6 +3,15 @@ Changelog
 =========
 
 
+0.2.2 (2020-05-25)
+------------------
+
+* renamed several sdk methods for API standardization
+* added enums for REST API
+* added support for simple enum str printing
+* added type support for enums
+* added XRPZAR support in currency enum
+
 0.2.1 (2020-05-25)
 ------------------
 
