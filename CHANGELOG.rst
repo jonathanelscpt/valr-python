@@ -3,6 +3,15 @@ Changelog
 =========
 
 
+0.2.1 (2020-05-25)
+------------------
+
+* Decimal support and JSON serialization handling
+* added typing for all API calls
+* async support for VALR's beta websocket API
+* additional api documentation
+* build automation extensions
+
 0.1.7 (2020-01-11)
 ------------------
 
