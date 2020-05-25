@@ -193,7 +193,7 @@ class MethodClientABC(BaseClientABC, metaclass=ABCMeta):
         return self._do('GET', f'/v1/account/transactionhistory?skip={skip}&limit={limit}', is_authenticated=True)
 
     @requires_authentication
-    def get_account_trade_history(self, currency_pair: str, limit: int = 10) -> List[Dict]:
+    def get_trade_history_for_currency_pair(self, currency_pair: str, limit: int = 10) -> List[Dict]:
         """Makes a call to GET https://api.valr.com/v1/account/:currencyPair/tradehistory?limit=10
 
         Get the last 100 recent trades for a given currency pair for your account.

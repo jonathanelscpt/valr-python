@@ -35,9 +35,9 @@ def test_get_account_trade_history(rest_sync_mocker, sync_client, sync_client_wi
     rest_sync_mocker.get(f'{BASE_URL}/v1/account/{btc_zar}/tradehistory?limit={limit}', json=rest_sync_mock_resp)
 
     with pytest.raises(RequiresAuthentication):
-        sync_client.get_account_trade_history(currency_pair=btc_zar, limit=limit)
+        sync_client.get_trade_history_for_currency_pair(currency_pair=btc_zar, limit=limit)
 
-    sdk_resp = sync_client_with_auth.get_account_trade_history(currency_pair=btc_zar, limit=limit)
+    sdk_resp = sync_client_with_auth.get_trade_history_for_currency_pair(currency_pair=btc_zar, limit=limit)
     assert sdk_resp == rest_sync_mock_resp
 
 
