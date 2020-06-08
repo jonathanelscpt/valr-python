@@ -1,6 +1,5 @@
 import asyncio
 import json
-from typing import Any
 from typing import Callable
 from typing import Dict
 from typing import List
@@ -876,7 +875,7 @@ class WebSocketClient:
     _ACCOUNT_CONNECTION = f'{_WEBSOCKET_API_URI}{WebSocketType.ACCOUNT.value}'
     _TRADE_CONNECTION = f'{_WEBSOCKET_API_URI}{WebSocketType.TRADE.value}'
 
-    def __init__(self, api_key: str, api_secret: str, hooks: Dict[Any, Callable],
+    def __init__(self, api_key: str, api_secret: str, hooks: Dict[str, Callable],
                  currency_pairs: Optional[List[str]] = None, ws_type: str = 'trade',
                  trade_subscriptions: Optional[List[str]] = None):
         self._api_key = api_key
