@@ -137,9 +137,9 @@ To use the WebSocket API client:
     ...    pprint(data)
     >>>
     >>> c = WebSocketClient(api_key='api_key', api_secret='api_secret', currency_pairs=['BTCZAR'],
-    ...                     ws_type=WebSocketType.TRADE,
-    ...                     trade_subscriptions=[TradeEvent.MARKET_SUMMARY_UPDATE],
-    ...                     hooks={TradeEvent.MARKET_SUMMARY_UPDATE : pretty_hook})
+    ...                     ws_type=WebSocketType.TRADE.name,
+    ...                     trade_subscriptions=[TradeEvent.MARKET_SUMMARY_UPDATE.name],
+    ...                     hooks={TradeEvent.MARKET_SUMMARY_UPDATE.name : pretty_hook})
     >>> loop = asyncio.get_event_loop()
     >>> loop.run_until_complete(c.run())
     {'currencyPairSymbol': 'BTCZAR',
