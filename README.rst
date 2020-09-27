@@ -37,9 +37,9 @@ Overview
     :alt: Supported implementations
     :target: https://pypi.org/project/valr-python
 
-.. |commits-since| image:: https://img.shields.io/github/commits-since/jonathanelscpt/valr-python/v0.2.2.svg
+.. |commits-since| image:: https://img.shields.io/github/commits-since/jonathanelscpt/valr-python/v0.2.3.svg
     :alt: Commits since latest release
-    :target: https://github.com/jonathanelscpt/valr-python/compare/v0.2.2...master
+    :target: https://github.com/jonathanelscpt/valr-python/compare/v0.2.3...master
 
 .. |license| image:: https://img.shields.io/pypi/l/valr-python.svg
     :alt: PyPI License
