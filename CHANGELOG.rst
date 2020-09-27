@@ -2,6 +2,15 @@
 Changelog
 =========
 
+0.2.4 (2020-09-27)
+------------------
+
+* build stability bugfixes
+
+0.2.3 (2020-09-27)
+------------------
+
+* replaced :code:`json` with :code:`simplejson` for speed improvements
 
 0.2.2 (2020-05-25)
 ------------------
