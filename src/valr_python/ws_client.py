@@ -5,6 +5,7 @@ from typing import List
 from typing import Optional
 from typing import Type
 from typing import Union
+
 try:
     import simplejson as json
 except ImportError:
