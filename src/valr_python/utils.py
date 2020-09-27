@@ -1,12 +1,15 @@
 import decimal
 import hashlib
 import hmac
-import json
 import time
 from typing import Any
 from typing import Dict
 from typing import List
 from typing import Union
+try:
+    import simplejson as json
+except ImportError:
+    import json
 
 from valr_python.enum import WebSocketType
 from valr_python.exceptions import RequiresAuthentication

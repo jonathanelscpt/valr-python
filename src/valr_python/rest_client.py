@@ -1,11 +1,14 @@
-import json
 import warnings
-from json.decoder import JSONDecodeError
+from simplejson.errors import JSONDecodeError
 from time import sleep
 from typing import Dict
 from typing import List
 from typing import Optional
 from typing import Union
+try:
+    import simplejson as json
+except ImportError:
+    import json
 
 from requests.exceptions import HTTPError
 

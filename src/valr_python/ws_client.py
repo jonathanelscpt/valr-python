@@ -1,11 +1,14 @@
 import asyncio
-import json
 from typing import Callable
 from typing import Dict
 from typing import List
 from typing import Optional
 from typing import Type
 from typing import Union
+try:
+    import simplejson as json
+except ImportError:
+    import json
 
 import websockets
 

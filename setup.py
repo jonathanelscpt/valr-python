@@ -64,7 +64,7 @@ setup(
     ],
     python_requires='>=3.6',
     install_requires=[
-        'requests', 'websockets', 'asyncio',
+        'requests', 'websockets', 'asyncio', 'simplejson',
     ],
     tests_require=['pytest', 'pytest-cov', 'requests_mock'],
     extras_require={
