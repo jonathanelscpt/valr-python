@@ -7,9 +7,9 @@ env:
     - SEGFAULT_SIGNALS=all
 matrix:
   include:
-    - python: '3.7'
-      env:
+    - env:
         - TOXENV=check
+      python: '3.8'
     - env:
         - TOXENV=py36,codecov
       python: '3.6'
