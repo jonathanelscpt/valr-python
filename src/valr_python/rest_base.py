@@ -297,12 +297,12 @@ class MethodClientABC(BaseClientABC, metaclass=ABCMeta):
 
     @requires_authentication
     def post_new_fiat_withdrawal(self, currency_code: str, linked_bank_account_id: str,
-                                 amount: Union[Decimal, str]) -> Dict:
+                                 amount: Union[Decimal, str], fast: bool = False) -> Dict:
         """Makes a call to POST https://api.valr.com/v1/wallet/fiat/:currencyCode/withdraw
 
         Withdraw your ZAR funds into one of your linked bank accounts.
         """
-        data = {"linkedBankAccountId": linked_bank_account_id, "amount": amount}
+        data = {"linkedBankAccountId": linked_bank_account_id, "amount": amount, "fast": fast}
         return self._do('POST', f'/v1/wallet/fiat/{currency_code}/withdraw', data=data, is_authenticated=True)
 
     # Market Data APIs
