@@ -25,8 +25,7 @@ __all__ = ('Client',)
 
 
 class Client(MethodClientABC):
-    """
-        Synchronous Python SDK for the VALR REST API.
+    """Synchronous Python SDK for the VALR REST API.
 
             >>> from valr_python import Client
             >>> from valr_python.exceptions import IncompleteOrderWarning
@@ -53,21 +52,24 @@ class Client(MethodClientABC):
             >>>
         """
 
-    def _do(self, method: str, path: str, data: Optional[Dict] = None,
-            is_authenticated: bool = False) -> Optional[Union[List, Dict]]:
+    def _do(self, method: str, path: str, body: Optional[Dict] = None, params: Optional[Dict] = None,
+            is_authenticated: bool = False, subaccount_id: str = '') -> Optional[Union[List, Dict]]:
         """Executes API request and returns the response.
 
         Includes HTTP 429 handling by honouring VALR's 429 Retry-After header cool-down.
         """
         headers = {}
-        if data:
-            data = json.dumps(data, cls=DecimalEncoder)  # serialize decimals as str
+        if body:
+            body = json.dumps(body, cls=DecimalEncoder)  # serialize decimals as str
             headers["Content-Type"] = "application/json"
         if is_authenticated:
+            # todo - fix data processing in valr headers
             headers.update(_get_valr_headers(api_key=self.api_key, api_secret=self.api_secret, method=method,
-                                             path=path, data=data))
+                                             path=path, data=body, subaccount_id=subaccount_id))
         url = self._base_url + '/' + path.lstrip('/')
-        args = dict(timeout=self._timeout, data=data, headers=headers)
+        args = dict(timeout=self._timeout, data=body, headers=headers)
+        if params:
+            args['params'] = params
         res = self._session.request(method, url, **args)
 
         try:
@@ -87,7 +89,7 @@ class Client(MethodClientABC):
                         warnings.warn(f"HTTP 429 response received. Applying Retry-After {retry_after}sec back-off",
                                       TooManyRequestsWarning)
                         sleep(retry_after)
-                        return self._do(method=method, path=path, is_authenticated=is_authenticated, data=data)
+                        return self._do(method=method, path=path, is_authenticated=is_authenticated, body=body)
                     except (KeyError, ValueError):
                         raise RESTAPIException(res.status_code,
                                                f'valr-python: HTTP 429 processing failed. '

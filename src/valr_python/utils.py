@@ -21,7 +21,7 @@ JSONType = Union[str, int, float, bool, None, Dict[str, Any], List[Any]]
 
 
 def _get_valr_headers(api_key: str, api_secret: str, method: str, path: Union[str, WebSocketType],
-                      data: str) -> Dict:
+                      data: str, subaccount_id: str = '') -> Dict:
     """Create signed VALR headers from method, api path and request params
 
     :param method: HTTP method (e.g. GET, POST, DELETE, etc.
@@ -36,13 +36,16 @@ def _get_valr_headers(api_key: str, api_secret: str, method: str, path: Union[st
     valr_headers["X-VALR-API-KEY"] = api_key
     valr_headers["X-VALR-SIGNATURE"] = _sign_request(api_secret=api_secret, timestamp=timestamp,
                                                      method=method, path=path,
-                                                     body=data)
+                                                     body=data, subaccount_id=subaccount_id)
     valr_headers["X-VALR-TIMESTAMP"] = str(timestamp)  # str or byte req for request headers
+    if subaccount_id:
+        valr_headers["X-VALR-SUB-ACCOUNT-ID"] = subaccount_id
 
     return valr_headers
 
 
-def _sign_request(api_secret: str, timestamp: int, method: str, path: str, body: str = "") -> str:
+def _sign_request(api_secret: str, timestamp: int, method: str, path: str,
+                  body: Union[Dict, str] = "", subaccount_id: str = "") -> str:
     """Signs the request payload using the api key secret
 
     :param timestamp: the unix timestamp of this request e.g. int(time.time()*1000)
@@ -52,7 +55,7 @@ def _sign_request(api_secret: str, timestamp: int, method: str, path: str, body:
     :return signature hash
     """
     body = body if body else ""
-    payload = f"{timestamp}{method.upper()}{path}{body}"
+    payload = f"{timestamp}{method.upper()}{path}{body}{subaccount_id}"
     message = bytearray(payload, 'utf-8')
     signature = hmac.new(bytearray(api_secret, 'utf-8'), message, digestmod=hashlib.sha512).hexdigest()
     return signature
