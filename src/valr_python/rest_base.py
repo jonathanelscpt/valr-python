@@ -87,8 +87,8 @@ class BaseClientABC(metaclass=ABCMeta):
             raise APIError(e['code'], e['message'])
 
     @abstractmethod
-    def _do(self, method: str, path: str, data: Optional[Dict] = None,
-            is_authenticated: bool = False) -> Optional[Union[List, Dict]]:
+    def _do(self, method: str, path: str, data: Optional[Dict] = None, params: Optional[Dict] = None,
+            is_authenticated: bool = False, subaccount_id: str = '') -> Optional[Union[List, Dict]]:
         """Executes API request and returns the response."""
         raise NotImplementedError
 

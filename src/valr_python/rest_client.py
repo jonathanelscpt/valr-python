@@ -52,22 +52,22 @@ class Client(MethodClientABC):
             >>>
         """
 
-    def _do(self, method: str, path: str, body: Optional[Dict] = None, params: Optional[Dict] = None,
+    def _do(self, method: str, path: str, data: Optional[Dict] = None, params: Optional[Dict] = None,
             is_authenticated: bool = False, subaccount_id: str = '') -> Optional[Union[List, Dict]]:
         """Executes API request and returns the response.
 
         Includes HTTP 429 handling by honouring VALR's 429 Retry-After header cool-down.
         """
         headers = {}
-        if body:
-            body = json.dumps(body, cls=DecimalEncoder)  # serialize decimals as str
+        if data:
+            data = json.dumps(data, cls=DecimalEncoder)  # serialize decimals as str
             headers["Content-Type"] = "application/json"
         if is_authenticated:
             # todo - fix data processing in valr headers
             headers.update(_get_valr_headers(api_key=self.api_key, api_secret=self.api_secret, method=method,
-                                             path=path, data=body, subaccount_id=subaccount_id))
+                                             path=path, data=data, subaccount_id=subaccount_id))
         url = self._base_url + '/' + path.lstrip('/')
-        args = dict(timeout=self._timeout, data=body, headers=headers)
+        args = dict(timeout=self._timeout, data=data, headers=headers)
         if params:
             args['params'] = params
         res = self._session.request(method, url, **args)
@@ -89,7 +89,7 @@ class Client(MethodClientABC):
                         warnings.warn(f"HTTP 429 response received. Applying Retry-After {retry_after}sec back-off",
                                       TooManyRequestsWarning)
                         sleep(retry_after)
-                        return self._do(method=method, path=path, is_authenticated=is_authenticated, body=body)
+                        return self._do(method=method, path=path, is_authenticated=is_authenticated, data=data)
                     except (KeyError, ValueError):
                         raise RESTAPIException(res.status_code,
                                                f'valr-python: HTTP 429 processing failed. '
