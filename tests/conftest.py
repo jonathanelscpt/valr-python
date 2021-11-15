@@ -44,3 +44,9 @@ def btc():
 @pytest.fixture
 def zar():
     return 'ZAR'
+
+
+@pytest.fixture
+def subaccount_id():
+    return '909461317243875555'
+

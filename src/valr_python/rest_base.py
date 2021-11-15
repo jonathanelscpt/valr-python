@@ -123,7 +123,7 @@ class MethodClientABC(BaseClientABC, metaclass=ABCMeta):
         Please note: This is not an authenticated call. More constrained rate-limiting rules will apply than when
         you use the /marketdata/:currencyPair/orderbook/full route.
         """
-        return self._do('GET', f'/v1/marketdata/{currency_pair}/orderbook/full')
+        return self._do('GET', f'/v1/public/{currency_pair}/orderbook/full')
 
     def get_currencies(self) -> List[Dict]:
         """Makes a call to GET https://api.valr.com/v1/public/currencies
@@ -190,7 +190,7 @@ class MethodClientABC(BaseClientABC, metaclass=ABCMeta):
         You can limit the number of trades returned by specifying the limit parameter.
         """
         opts = {'skip': skip, 'limit': limit, 'startTime': start_time, 'endTime': end_time, 'beforeId': before_id}
-        params = {k: v for k, v in opts if v}
+        params = {k: v for k, v in opts.items() if v}
         return self._do('GET', f'/v1/public/{currency_pair}/trades', params=params)
 
     def get_server_time(self) -> Dict:
@@ -211,7 +211,7 @@ class MethodClientABC(BaseClientABC, metaclass=ABCMeta):
     # Account APIs - API Keys
 
     @requires_authentication
-    def get_api_keys(self) -> List[Dict]:
+    def get_current_api_key_info(self, subaccount_id: str = "") -> List[Dict]:
         """Returns the current API Key's information and permissions.
         This information includes the label, date created, and permissions.
         Permission levels are View Access, Trade , or Withdraw.
@@ -219,7 +219,7 @@ class MethodClientABC(BaseClientABC, metaclass=ABCMeta):
         If an API key has Whitelisted IP address ranges or Whitelisted Withdrawal addresses,
         the IP addresses and Currency withdrawal addresses will also be returned.
         """
-        return self._do('GET', '/v1/account/api-keys/current', is_authenticated=True)
+        return self._do('GET', '/v1/account/api-keys/current', is_authenticated=True, subaccount_id=subaccount_id)
 
     # Account APIs - Sub-accounts
 
@@ -250,14 +250,16 @@ class MethodClientABC(BaseClientABC, metaclass=ABCMeta):
         return self._do('POST', '/v1/account/subaccount', data=data, is_authenticated=True)
 
     @requires_authentication
-    def post_internal_transfer_subaccounts(self, from_id: str, to_id: str, currency_code: str, amount: str) -> Dict:
+    def post_internal_transfer_subaccounts(self, from_id: str, to_id: str, currency_code: str, amount: str,
+                                           subaccount_id: str = "") -> Dict:
         """Transfer funds between 2 accounts.
 
         The primary API key can transfer from and to any subaccount.
         The subaccount API key can only transfer from itself.
         """
         data = {"fromId": from_id, "toId": to_id, "currencyCode": currency_code, "amount": amount}
-        return self._do('POST', '/v1/account/subaccounts/transfer', data=data, is_authenticated=True)
+        return self._do('POST', '/v1/account/subaccounts/transfer', data=data, is_authenticated=True,
+                        subaccount_id=subaccount_id)
 
     # Account APIs - General
 
@@ -291,7 +293,7 @@ class MethodClientABC(BaseClientABC, metaclass=ABCMeta):
             'endTime': end_time,
             'beforeId': before_id
         }
-        params = {k: v for k, v in opts if v}
+        params = {k: v for k, v in opts.items() if v}
         return self._do('GET', '/v1/account/transactionhistory', params=params, is_authenticated=True,
                         subaccount_id=subaccount_id)
 
@@ -305,7 +307,7 @@ class MethodClientABC(BaseClientABC, metaclass=ABCMeta):
         You can limit the number of trades returned by specifying the `limit` parameter.
         """
         opts = {'limit': limit}
-        params = {k: v for k, v in opts if v}
+        params = {k: v for k, v in opts.items() if v}
         return self._do('GET', f'/v1/account/{currency_pair}/tradehistory', params=params, is_authenticated=True,
                         subaccount_id=subaccount_id)
 
@@ -335,7 +337,7 @@ class MethodClientABC(BaseClientABC, metaclass=ABCMeta):
                             is_authenticated=True, subaccount_id=subaccount_id)
 
     @requires_authentication
-    def get_withdrawal_info(self, currency_code: str, subaccount_id: str = '') -> Dict:
+    def get_crypto_withdrawal_info(self, currency_code: str, subaccount_id: str = '') -> Dict:
         """Makes a call to GET https://api.valr.com/v1/wallet/crypto/:currencyCode/withdraw
 
         Get all the information about withdrawing a given currency from your VALR account.
@@ -345,8 +347,8 @@ class MethodClientABC(BaseClientABC, metaclass=ABCMeta):
                         is_authenticated=True, subaccount_id=subaccount_id)
 
     @requires_authentication
-    def post_withdrawal(self, currency_code: str, amount: Union[Decimal, str],
-                        address: str, payment_reference: str = "", subaccount_id: str = '') -> Dict:
+    def post_crypto_withdrawal(self, currency_code: str, amount: Union[Decimal, str],
+                               address: str, payment_reference: str = "", subaccount_id: str = '') -> Dict:
         """Makes a call to POST https://api.valr.com/v1/wallet/crypto/:currencyCode/withdraw
 
         Withdraw cryptocurrency funds to an address.
@@ -361,7 +363,7 @@ class MethodClientABC(BaseClientABC, metaclass=ABCMeta):
                         is_authenticated=True, subaccount_id=subaccount_id)
 
     @requires_authentication
-    def get_withdrawal_status(self, currency_code: str, withdraw_id: str, subaccount_id: str = '') -> Dict:
+    def get_crypto_withdrawal_status(self, currency_code: str, withdraw_id: str, subaccount_id: str = '') -> Dict:
         """Makes a call to GET https://api.valr.com/v1/wallet/crypto/:currencyCode/withdraw/:withdrawId
 
         Check the status of a withdrawal.
@@ -377,26 +379,26 @@ class MethodClientABC(BaseClientABC, metaclass=ABCMeta):
         Get the Deposit History records for a given currency.
         """
         opts = {'skip': skip, 'limit': limit}
-        params = {k: v for k, v in opts if v}
+        params = {k: v for k, v in opts.items() if v}
         return self._do('GET', f'/v1/wallet/crypto/{currency_code}/deposit/history', params=params,
                         is_authenticated=True, subaccount_id=subaccount_id)
 
     @requires_authentication
-    def get_withdrawal_history(self, currency_code: str, skip: Optional[int] = None, limit: Optional[int] = None,
-                               subaccount_id: str = '') -> List[Dict]:
+    def get_crypto_withdrawal_history(self, currency_code: str, skip: Optional[int] = None, limit: Optional[int] = None,
+                                      subaccount_id: str = '') -> List[Dict]:
         """Makes a call to GET https://api.valr.com/v1/wallet/crypto/:currencyCode/withdraw/history?skip=0&limit=10
 
         Get Withdrawal History records for a given currency.
         """
         opts = {'skip': skip, 'limit': limit}
-        params = {k: v for k, v in opts if v}
+        params = {k: v for k, v in opts.items() if v}
         return self._do('GET', f'/v1/wallet/crypto/{currency_code}/withdraw/history', params=params,
                         is_authenticated=True, subaccount_id=subaccount_id)
 
     # Fiat Wallet APIs
 
     @requires_authentication
-    def get_bank_accounts(self, currency_code: str, subaccount_id: str = '') -> List[Dict]:
+    def get_fiat_bank_accounts(self, currency_code: str, subaccount_id: str = '') -> List[Dict]:
         """Makes a call to GET https://api.valr.com/v1/wallet/fiat/:currencyCode/accounts
 
         Get a list of bank accounts that are linked to your VALR account.
@@ -452,7 +454,7 @@ class MethodClientABC(BaseClientABC, metaclass=ABCMeta):
         You can limit the number of trades returned by specifying the limit parameter.
         """
         opts = {'skip': skip, 'limit': limit, 'startTime': start_time, 'endTime': end_time, 'beforeId': before_id}
-        params = {k: v for k, v in opts if v}
+        params = {k: v for k, v in opts.items() if v}
         return self._do('GET', f'/v1/marketdata/{currency_pair}/tradehistory', params=params, is_authenticated=True,
                         subaccount_id=subaccount_id)
 
@@ -922,7 +924,7 @@ class MethodClientABC(BaseClientABC, metaclass=ABCMeta):
         Get historical orders placed by you.
         """
         opts = {'skip': skip, 'limit': limit}
-        params = {k: v for k, v in opts if v}
+        params = {k: v for k, v in opts.items() if v}
         return self._do('GET', '/v1/orders/history', params=params, is_authenticated=True,
                         subaccount_id=subaccount_id)
 
@@ -986,7 +988,7 @@ class MethodClientABC(BaseClientABC, metaclass=ABCMeta):
 
     @requires_authentication
     @check_xor_attrs("order_id", "customer_order_id")
-    def delete_order(self, pair: Union[str, CurrencyPair], order_id: str = '', customer_order_id: str = '',
+    def delete_order(self, currency_pair: Union[str, CurrencyPair], order_id: str = '', customer_order_id: str = '',
                      subaccount_id: str = '') -> None:
         """Makes a call to DELETE https://api.valr.com/v1/orders/order
 
@@ -1012,7 +1014,7 @@ class MethodClientABC(BaseClientABC, metaclass=ABCMeta):
         When the response is 202 Accepted, you can either use the Order Status REST API
         or use WebSocket API to receive status update about this order.
         """
-        data = {"pair": pair}
+        data = {"pair": currency_pair}
         if order_id:
             data["orderId"] = order_id
         else:
