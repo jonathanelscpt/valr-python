@@ -3,10 +3,19 @@ Changelog
 =========
 
 
+0.2.6 (2021-11-15)
+------------------
+
+* added subaccount support
+* added all rest api endpoint changes for 2021
+* api renaming to align with VALR api docs
+* unit tests extended to support endpoint changes and subaccount feature
+
+
 0.2.5 (2021-11-02)
 ------------------
 
-* Bank fast withdrawal support
+* bank fast withdrawal support
 
 0.2.4 (2020-09-27)
 ------------------
