@@ -1,4 +1,5 @@
 from decimal import Decimal
+
 import pytest
 
 from valr_python.exceptions import RequiresAuthentication
@@ -216,7 +217,7 @@ def test_get_crypto_withdrawal_info(rest_sync_mocker, sync_client, sync_client_w
 
 
 def test_post_crypto_withdrawal(rest_sync_mocker, sync_client, sync_client_with_auth, rest_sync_mock_resp, btc,
-                                    subaccount_id):
+                                subaccount_id):
     amount = Decimal(0.001)
     address = 'crypto-address'
     payment_reference = 'payment-ref'
@@ -655,7 +656,7 @@ def test_get_order_history(rest_sync_mocker, sync_client, sync_client_with_auth,
                            subaccount_id):
     skip = 0
     limit = 2
-    rest_sync_mocker.get(f'/v1/orders/history', json=rest_sync_mock_resp)
+    rest_sync_mocker.get('/v1/orders/history', json=rest_sync_mock_resp)
 
     with pytest.raises(RequiresAuthentication):
         sync_client.get_order_history()
@@ -718,7 +719,6 @@ def test_get_order_history_detail(rest_sync_mocker, sync_client, sync_client_wit
                          json=rest_sync_mock_resp)
     sdk_resp_customer_order_id = sync_client_with_auth.get_order_history_detail(customer_order_id=customer_order_id)
     assert sdk_resp_customer_order_id == rest_sync_mock_resp
-
 
     # subaccount_id must be supported
     try:

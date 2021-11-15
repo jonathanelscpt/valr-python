@@ -1,5 +1,4 @@
 import json
-import pytest
 
 from valr_python.utils import _sign_request
 
