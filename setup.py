@@ -25,7 +25,7 @@ def read(*names, **kwargs):
 
 setup(
     name='valr-python',
-    version='0.2.6',
+    version='0.2.7',
     license='MIT',
     description='Python SDK for the VALR REST API',
     long_description='%s\n%s' % (
