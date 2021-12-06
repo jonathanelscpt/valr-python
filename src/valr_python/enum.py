@@ -130,3 +130,4 @@ class CurrencyPair(NameStrEnum):
     BTCZAR = auto()
     ETHZAR = auto()
     XRPZAR = auto()
+    SOLZAR = auto()
