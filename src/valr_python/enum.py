@@ -44,6 +44,7 @@ class MessageFeedType(NameStrEnum):
 
 class TradeEvent(NameStrEnum):
     AGGREGATED_ORDERBOOK_UPDATE = auto()
+    FULL_ORDERBOOK_UPDATE = auto()
     MARKET_SUMMARY_UPDATE = auto()
     NEW_TRADE_BUCKET = auto()
     NEW_TRADE = auto()
@@ -131,3 +132,6 @@ class CurrencyPair(NameStrEnum):
     ETHZAR = auto()
     XRPZAR = auto()
     SOLZAR = auto()
+    BTCUSDC = auto()
+    USDCZAR = auto()
+    BNBZAR = auto()
