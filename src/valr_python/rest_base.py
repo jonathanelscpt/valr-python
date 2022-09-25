@@ -181,7 +181,7 @@ class MethodClientABC(BaseClientABC, metaclass=ABCMeta):
         else:
             return self._do('GET', '/v1/public/marketsummary')
 
-    def get_trade_history_public(self, currency_pair: Union[str, CurrencyPair], limit: Optional[int] = None,
+    def get_trade_history_public(self, currency_pair: Union[str, CurrencyPair], limit: Optional[int] = 100,
                                  skip: Optional[int] = None, start_time: Optional[int] = None,
                                  end_time: Optional[int] = None, before_id: Optional[int] = None) -> List[Dict]:
         """Makes a call to GET https://api.valr.com/v1/marketdata/:currencyPair/tradehistory?limit=10
@@ -273,7 +273,7 @@ class MethodClientABC(BaseClientABC, metaclass=ABCMeta):
 
     # todo - fix attr names to be pythonic
     @requires_authentication
-    def get_transaction_history(self, skip: Optional[int] = None, limit: Optional[int] = None,
+    def get_transaction_history(self, skip: Optional[int] = None, limit: Optional[int] = 100,
                                 transaction_types: Optional[Union[List[Union[str, TransactionType]], str, TransactionType]] = None,
                                 before_id: Optional[str] = None, currency: Optional[str] = None,
                                 start_time: Optional[str] = None, end_time: Optional[str] = None,
@@ -372,7 +372,7 @@ class MethodClientABC(BaseClientABC, metaclass=ABCMeta):
                         is_authenticated=True, subaccount_id=subaccount_id)
 
     @requires_authentication
-    def get_deposit_history(self, currency_code: str, skip: Optional[int] = None, limit: Optional[int] = None,
+    def get_deposit_history(self, currency_code: str, skip: Optional[int] = None, limit: Optional[int] = 100,
                             subaccount_id: str = '') -> List[Dict]:
         """Makes a call to GET https://api.valr.com/v1/wallet/crypto/:currencyCode/deposit/history?skip=0&limit=10
 
@@ -384,7 +384,7 @@ class MethodClientABC(BaseClientABC, metaclass=ABCMeta):
                         is_authenticated=True, subaccount_id=subaccount_id)
 
     @requires_authentication
-    def get_crypto_withdrawal_history(self, currency_code: str, skip: Optional[int] = None, limit: Optional[int] = None,
+    def get_crypto_withdrawal_history(self, currency_code: str, skip: Optional[int] = None, limit: Optional[int] = 100,
                                       subaccount_id: str = '') -> List[Dict]:
         """Makes a call to GET https://api.valr.com/v1/wallet/crypto/:currencyCode/withdraw/history?skip=0&limit=10
 
@@ -444,7 +444,7 @@ class MethodClientABC(BaseClientABC, metaclass=ABCMeta):
                         subaccount_id=subaccount_id)
 
     @requires_authentication
-    def get_trade_history_marketdata(self, currency_pair: Union[str, CurrencyPair], limit: Optional[int] = None,
+    def get_trade_history_marketdata(self, currency_pair: Union[str, CurrencyPair], limit: Optional[int] = 100,
                                      skip: Optional[int] = None, start_time: Optional[int] = None,
                                      end_time: Optional[int] = None, before_id: Optional[int] = None,
                                      subaccount_id: str = '') -> List[Dict]:
@@ -917,7 +917,7 @@ class MethodClientABC(BaseClientABC, metaclass=ABCMeta):
         return self._do('GET', '/v1/orders/open', is_authenticated=True, subaccount_id=subaccount_id)
 
     @requires_authentication
-    def get_order_history(self, skip: Optional[int] = None, limit: Optional[int] = None,
+    def get_order_history(self, skip: Optional[int] = None, limit: Optional[int] = 100,
                           subaccount_id: str = '') -> List[Dict]:
         """Makes a call to GET https://api.valr.com/v1/orders/history?skip=0&limit=2
 
