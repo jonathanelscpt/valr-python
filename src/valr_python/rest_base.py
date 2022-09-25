@@ -300,7 +300,7 @@ class MethodClientABC(BaseClientABC, metaclass=ABCMeta):
     # check with valr if full param support is included as per public calls
     @requires_authentication
     def get_trade_history(self, currency_pair: Union[str, CurrencyPair],
-                          limit: Optional[int] = None, subaccount_id: str = '') -> List[Dict]:
+                          limit: Optional[int] = 100, subaccount_id: str = '') -> List[Dict]:
         """Makes a call to GET https://api.valr.com/v1/account/:currencyPair/tradehistory?limit=10
 
         Get the last 100 recent trades for a given currency pair for your account.
