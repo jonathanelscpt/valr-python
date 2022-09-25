@@ -4,6 +4,7 @@ from typing import Dict
 from typing import List
 from typing import Optional
 from typing import Union
+from urllib import parse
 
 from simplejson.errors import JSONDecodeError
 
@@ -65,7 +66,7 @@ class Client(MethodClientABC):
         if is_authenticated:
             # todo - fix data processing in valr headers
             headers.update(_get_valr_headers(api_key=self.api_key, api_secret=self.api_secret, method=method,
-                                             path=path, data=data, subaccount_id=subaccount_id))
+                                             path=f'{path}?{parse.urlencode(params)}', data=data, subaccount_id=subaccount_id))
         url = self._base_url + '/' + path.lstrip('/')
         args = dict(timeout=self._timeout, data=data, headers=headers)
         if params:
