@@ -77,12 +77,15 @@ class Client(MethodClientABC):
 
         try:
             res.raise_for_status()
-            e = res.json()
-            self._raise_for_api_error(e)
-            # provide warning with bundled response dict for incomplete transactions
-            if res.status_code == 202:
-                warnings.warn(IncompleteOrderWarning(data=e, message="Order processing incomplete"))
-            return e
+            if res.text:
+                e = res.json()
+                self._raise_for_api_error(e)
+                # provide warning with bundled response dict for incomplete transactions
+                if res.status_code == 202:
+                    warnings.warn(IncompleteOrderWarning(data=e, message="Order processing incomplete"))
+                return e
+            else:
+                return res.raise_for_status()
         except HTTPError as he:
             print(he)
             if res.status_code == 429:
