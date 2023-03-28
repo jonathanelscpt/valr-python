@@ -110,3 +110,26 @@ class Client(MethodClientABC):
         except JSONDecodeError as jde:
             raise RESTAPIException(res.status_code,
                                    f'valr-python: unknown API error. HTTP ({res.status_code}): {jde.msg}')
+
+
+    def _do_delete(self, method: str, path: str, data: Optional[Dict] = None, params: Optional[Dict] = None,
+            is_authenticated: bool = False, subaccount_id: str = '') -> Optional[Union[List, Dict]]:
+        """Executes API request and returns the response.
+
+        Includes HTTP 429 handling by honouring VALR's 429 Retry-After header cool-down.
+        """
+        headers = {}
+        if data:
+            data = json.dumps(data, cls=DecimalEncoder)  # serialize decimals as str
+            headers["Content-Type"] = "application/json"
+        params_str = parse.urlencode(params, safe=":") if params else None
+        if is_authenticated:
+            # todo - fix data processing in valr headers
+            headers.update(_get_valr_headers(api_key=self.api_key, api_secret=self.api_secret, method=method,
+                                             path=f'{path}?{params_str}' if params_str else path, data=data,
+                                             subaccount_id=subaccount_id))
+        url = self._base_url + '/' + path.lstrip('/')
+        args = dict(timeout=self._timeout, data=data, headers=headers)
+        if params_str:
+            args['params'] = params_str
+        return self._session.request(method, url, **args)
