@@ -1019,4 +1019,4 @@ class MethodClientABC(BaseClientABC, metaclass=ABCMeta):
             data["orderId"] = order_id
         else:
             data["customerOrderId"] = customer_order_id
-        return self._do('DELETE', '/v1/orders/order', data=data, is_authenticated=True, subaccount_id=subaccount_id)
+        return self._do_delete('DELETE', '/v1/orders/order', data=data, is_authenticated=True, subaccount_id=subaccount_id)
