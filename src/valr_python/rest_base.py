@@ -270,6 +270,24 @@ class MethodClientABC(BaseClientABC, metaclass=ABCMeta):
         Returns the list of all wallets with their respective balances.
         """
         return self._do('GET', '/v1/account/balances', is_authenticated=True, subaccount_id=subaccount_id)
+    
+    @requires_authentication
+    def get_balances_formatted(self, subaccount_id: str = '') -> Dict:
+        """Makes a call to GET https://api.valr.com/v1/account/balances
+
+        Returns the list of all wallets with their respective balances, in a dictionary with the currency as the key.
+        """
+        
+        balance_list = self._do('GET', '/v1/account/balances', is_authenticated=True, subaccount_id=subaccount_id)
+        
+        balance_dict = {}
+        
+        for balance in balance_list:
+            currency_code = balance['currency']
+            balance.pop(currency_code,None)
+            balance_dict[currency_code] = balance
+            
+        return balance_dict
 
     # todo - fix attr names to be pythonic
     @requires_authentication
@@ -396,15 +414,109 @@ class MethodClientABC(BaseClientABC, metaclass=ABCMeta):
                         is_authenticated=True, subaccount_id=subaccount_id)
 
     # Fiat Wallet APIs
+    
+    @requires_authentication
+    def add_fiat_bank_account(self, currency_code: str, bank: str, account_holder_name: str, 
+                              account_number: str, branch_code: str, account_type: str, bank_country: str, subaccount_id: str = '') -> List[Dict]:
+        """Makes a call to POST https://api.valr.com/v1/wallet/fiat/:currencyCode/accounts
 
+        Link a bank account to your VALR account for fiat withdrawals.
+        
+        The bank field should contain a valid bank identifier. Use the Banks for Currency request for a list of supported banks for the given currency.
+        The country field must be the valid 2 character ISO 3166‑1 code for the country in which the bank account is registered.
+
+        {
+            "bank": "FNB",
+            "accountHolder": "Frodo Baggins",
+            "accountNumber": "62792461544",
+            "branchCode": "040000",
+            "accountType": "CHEQUE",
+            "country": "ZA"
+            }
+        """
+        data = {
+            "bank": bank,
+            "accountHolder": account_holder_name,
+            "accountNumber": account_number,
+            "branchCode": branch_code,
+            "accountType": account_type,
+            "country": bank_country.upper()
+            }
+        return self._do('POST', f'/v1/wallet/fiat/{currency_code}/accounts',
+                        is_authenticated=True, subaccount_id=subaccount_id, data=data)
+        
+        
+    @requires_authentication
+    def get_fiat_bank_account_detail(self, currency_code: str, bank_account_id: str, subaccount_id: str = '') -> List[Dict]:
+        """Makes a call to GET https://api.valr.com/v1/wallet/fiat/:currencyCode/accounts/:id
+        
+        Get the details of a linked bank account by id.
+        Bank accounts can be linked by signing in to your account on www.VALR.com, or by using the add_fiat_bank_account() function.
+        """
+        return self._do('GET', f'/v1/wallet/fiat/{currency_code}/accounts/{bank_account_id}',
+                        is_authenticated=True, subaccount_id=subaccount_id)
+        
     @requires_authentication
     def get_fiat_bank_accounts(self, currency_code: str, subaccount_id: str = '') -> List[Dict]:
         """Makes a call to GET https://api.valr.com/v1/wallet/fiat/:currencyCode/accounts
 
         Get a list of bank accounts that are linked to your VALR account.
-        Bank accounts can be linked by signing in to your account on www.VALR.com.
+        Bank accounts can be linked by signing in to your account on www.VALR.com, or by using the add_fiat_bank_account() function.
         """
         return self._do('GET', f'/v1/wallet/fiat/{currency_code}/accounts',
+                        is_authenticated=True, subaccount_id=subaccount_id)
+        
+    @requires_authentication
+    def delete_fiat_bank_account(self, currency_code: str, bank_account_id: str, subaccount_id: str = '') -> List[Dict]:
+        """Makes a call to DELETE https://api.valr.com/v1/wallet/fiat/:currencyCode/accounts/:id
+
+        Delete a linked bank account.
+        Bank accounts can be linked by signing in to your account on www.VALR.com, or by using the add_fiat_bank_account() function.
+        """
+        return self._do('DELETE', f'/v1/wallet/fiat/{currency_code}/accounts/{bank_account_id}',
+                        is_authenticated=True, subaccount_id=subaccount_id)
+        
+    @requires_authentication
+    def get_banks_for_currency(self, currency_code: str, subaccount_id: str = '') -> List[Dict]:
+        """Makes a call to GET https://api.valr.com/v1/wallet/fiat/:currencyCode/banks
+
+        Get a list of banks supported for a given currency.
+        """
+        return self._do('GET', f'/v1/wallet/fiat/{currency_code}/banks',
+                        is_authenticated=True, subaccount_id=subaccount_id)
+        
+    @requires_authentication
+    def get_deposit_reference(self, currency_code: str, subaccount_id: str = '') -> List[Dict]:
+        """Makes a call to GET https://api.valr.com/v1/wallet/fiat/:currencyCode/deposit/reference
+
+        Get the unique Deposit Reference for the primary account or subaccount whose API Key is authorised.
+        
+        Payments made with this reference will be credited to your account.
+        """
+        return self._do('GET', f'/v1/wallet/fiat/{currency_code}/deposit/reference',
+                        is_authenticated=True, subaccount_id=subaccount_id)
+        
+    
+    @requires_authentication
+    def get_autobuy_deposit_reference(self, currency_code: str, buy_currency_symbol: str, subaccount_id: str = '') -> List[Dict]:
+        """Makes a call to GET https://api.valr.com/v1/wallet/fiat/:currencyCode/deposit/reference/:buyCurrencySymbol
+
+        Get the unique auto-buy Deposit Reference for the primary account or subaccount whose API Key is authorised.
+
+        Payments in the currencyCode currency made with this reference will be used to buy buyCurrencySymbol currency.
+
+        Use the Supported Auto-Buy Currencies request for the list of currencies supported for auto-buy with the pay currency.
+        """
+        return self._do('GET', f'/v1/wallet/fiat/{currency_code}/deposit/reference/{buy_currency_symbol}',
+                        is_authenticated=True, subaccount_id=subaccount_id)
+        
+    @requires_authentication
+    def get_supported_autobuy_currencies(self, currency_code: str, subaccount_id: str = '') -> List[Dict]:
+        """Makes a call to GET https://api.valr.com/v1/wallet/fiat/:currencyCode/auto-buy
+
+        Get a list of currencies supported for auto-buying with the currencyCode currency.
+        """
+        return self._do('GET', f'/v1/wallet/fiat/{currency_code}/auto-buy',
                         is_authenticated=True, subaccount_id=subaccount_id)
 
     @requires_authentication
@@ -525,6 +637,86 @@ class MethodClientABC(BaseClientABC, metaclass=ABCMeta):
         """
         return self._do('GET', f'/v1/simple/{currency_pair}/order/{order_id}', is_authenticated=True,
                         subaccount_id=subaccount_id)
+
+    #VALR Pay APIs
+    
+    @requires_authentication
+    def create_new_payment(self, currency: str, amount: float, recipient_email: str=None, recipient_cell_number: str=None, recipient_pay_id: str=None,
+                           recipient_note: Optional[str]=None, sender_note: Optional[str]=None, anonymous=False,
+                                subaccount_id: str = '') -> Dict:
+        """Makes a call to POST https://api.valr.com/v1/pay
+
+        Initiate an instant payment using VALR Pay by specifying the recipient email, recipient cellphone number or their account payment reference (VALR PayID)
+        """
+        data = {
+            "currency": currency,
+            "amount": amount,
+            "recipientNote": recipient_note,
+            "senderNote": sender_note,
+            "anonymous": anonymous
+        }
+        
+        if bool(recipient_email) + bool(recipient_cell_number) + bool(recipient_pay_id) != 1:
+            raise Exception('One and only one must be provided: recipient_email OR recipient_cell_number OR recipient_pay_id.')
+        
+        if recipient_email:
+            data['recipientEmail']=recipient_email
+        elif recipient_cell_number:
+            data['recipientCellNumber']=recipient_cell_number
+        elif recipient_pay_id:
+            data['recipientPayId']=recipient_pay_id
+        
+        return self._do('POST', '/v1/pay', data=data, is_authenticated=True, subaccount_id=subaccount_id)
+    
+    @requires_authentication
+    def get_payment_limits(self, currency: str, subaccount_id: str = '') -> Dict:
+        """Makes a call to GET https://api.valr.com/v1/pay/limits
+
+        Retrieves all the payment limits applicable to your account. This will include minimum payment amount, maximum payment amount, payment currency and limit type (currently per transaction).
+        """
+        
+        return self._do('GET', '/v1/pay/limits', params={'currency':currency}, subaccount_id=subaccount_id)
+    
+    @requires_authentication
+    def get_pay_id(self, subaccount_id: str = '') -> Dict:
+        """Makes a call to GET https://api.valr.com/v1/pay/payid
+
+        Get your account's unique VALR PayID.
+        Payments made with this reference will be credited to your account.
+        """
+        return self._do('GET', '/v1/pay/payid', subaccount_id=subaccount_id)
+    
+    @requires_authentication
+    def get_payment_history(self, subaccount_id: str = '') -> Dict:
+        """Makes a call to GET https://api.valr.com/v1/pay/history
+
+        Fetches a list of all payments made from and made to the current users account.
+
+        Payments received (incoming) have type = CREDIT and Payments sent (outgoing) have type = DEBIT
+
+        The results of this request may be filtered by Status i.e.STATUS=COMPLETE,FAILED
+
+        Valid Status are INITIATED, AUTHORISED, COMPLETE, RETURNED, FAILED, EXPIRED
+
+        The skip and limit parameters may be applied to paginate the filtered results.
+        """
+        return self._do('GET', '/v1/pay/history', subaccount_id=subaccount_id)
+    
+    @requires_authentication
+    def get_payment_details(self, identifier: str, subaccount_id: str = '') -> Dict:
+        """Makes a call to GET https://api.valr.com/v1/pay/identifier/:identifier
+
+        Get the payment details by specifying the payment identifier
+        """
+        return self._do('GET', f'/v1/pay/identifier/{identifier}', subaccount_id=subaccount_id)
+    
+    @requires_authentication
+    def get_payment_status(self, transactionId: str, subaccount_id: str = '') -> Dict:
+        """Makes a call to GET https://api.valr.com/v1/pay/transactionid/:transactionId
+        
+        Get the status and details of a payment transaction, by specifying a transactionId
+        """
+        return self._do('GET', f'/v1/pay/transactionId/{transactionId}', subaccount_id=subaccount_id)
 
     # Exchange Buy/Sell APIs
 

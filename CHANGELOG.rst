@@ -3,6 +3,15 @@ Changelog
 =========
 
 
+0.3.0 (2023-04-20)
+------------------
+
+* Added new API features:
+* Add fiat bank accounts APIs
+* Add VALR Pay APIs
+* Added formatting of balances as a convenience function
+
+
 0.2.7 (2021-12-06)
 ------------------
 
